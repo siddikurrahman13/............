@@ -2568,4 +2568,151 @@ button:hover{
         font-size: 16px;
     }
 
+/* =========================
+   GLOBAL PREMIUM NAVIGATION
+========================= */
+
+.global-nav {
+    position: fixed;
+
+    left: 22px;
+    bottom: 22px;
+
+    display: flex;
+    gap: 10px;
+
+    z-index: 99999;
+
+    pointer-events: none;
+}
+
+.global-nav button {
+    pointer-events: auto;
+
+    width: 48px;
+    height: 48px;
+
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,255,255,.18);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.13),
+            rgba(255,255,255,.045)
+        );
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    color: rgba(255,255,255,.9);
+
+    font-size: 20px;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.35),
+        inset 0 1px 1px rgba(255,255,255,.12);
+
+    transition:
+        transform .35s ease,
+        background .35s ease,
+        box-shadow .35s ease,
+        border-color .35s ease;
+
+    cursor: pointer;
+}
+
+
+/* Hover */
+
+.global-nav button:hover {
+
+    transform:
+        translateY(-3px)
+        scale(1.06);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,79,163,.22),
+            rgba(255,255,255,.07)
+        );
+
+    border-color:
+        rgba(255,150,200,.4);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.4),
+        0 0 22px rgba(255,79,163,.18),
+        inset 0 1px 1px rgba(255,255,255,.15);
+}
+
+
+/* Press */
+
+.global-nav button:active {
+
+    transform:
+        translateY(0)
+        scale(.94);
+
+}
+
+
+/* Back arrow */
+
+#globalBackBtn {
+
+    font-size: 21px;
+
+}
+
+
+/* Second button */
+
+#globalMenuBtn {
+
+    font-size: 18px;
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:600px){
+
+    .global-nav {
+
+        left: 14px;
+        bottom: 14px;
+
+        gap: 8px;
+
+    }
+
+    .global-nav button {
+
+        width: 44px;
+        height: 44px;
+
+        font-size: 18px;
+
+    }
+
+    #globalBackBtn {
+
+        font-size: 20px;
+
+    }
+
 }
