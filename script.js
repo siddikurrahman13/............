@@ -1379,6 +1379,10 @@ window.addEventListener(
    GLOBAL NAVIGATION HOOK
 ========================= */
 
+/* =====================================================
+   GLOBAL NAVIGATION HOOK
+===================================================== */
+
 (function () {
 
     const originalHide = hideAllPages;
@@ -1387,16 +1391,24 @@ window.addEventListener(
 
         const visible =
             document.querySelector(
-                ".page:not(.hidden), #welcome:not(.hidden), #chapter2:not(.hidden), #chapter3:not(.hidden), #finalChapter:not(.hidden), #birthdayReveal:not(.hidden), #celebrationScene:not(.hidden), #ultimateEnding:not(.hidden)"
+                ".page:not(.hidden), #welcome:not(.hidden), #passwordPage:not(.hidden), #envelopePage:not(.hidden), #letterPage:not(.hidden), #chapter2:not(.hidden), #chapter3:not(.hidden), #finalChapter:not(.hidden), #birthdayReveal:not(.hidden), #celebrationScene:not(.hidden), #ultimateEnding:not(.hidden)"
             );
 
-        if (visible && visible.id) {
+        /* Don't save page when going backward */
+
+        if (
+            visible &&
+            visible.id &&
+            !window.isGoingBack
+        ) {
 
             if (
                 navigationHistory.length === 0 ||
                 navigationHistory[navigationHistory.length - 1] !== visible.id
             ) {
+
                 navigationHistory.push(visible.id);
+
             }
 
         }
@@ -1406,3 +1418,42 @@ window.addEventListener(
     };
 
 })();
+
+
+/* =====================================================
+   GLOBAL BACK FUNCTION
+===================================================== */
+
+function goBack() {
+
+    if (navigationHistory.length === 0) {
+
+        return;
+
+    }
+
+    window.isGoingBack = true;
+
+    const previousPage =
+        navigationHistory.pop();
+
+    hideAllPages();
+
+    const page =
+        document.getElementById(previousPage);
+
+    if (page) {
+
+        page.classList.remove("hidden");
+
+        page.style.display = "";
+
+        cinematicEnter(previousPage);
+
+    }
+
+    window.isGoingBack = false;
+
+    updateGlobalBackButton();
+
+}
