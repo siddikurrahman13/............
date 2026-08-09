@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Favourite Chapter ❤️</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="stars"></div>
+
+    <!-- Welcome -->
+    <section id="welcome">
+
+        <h3>✨ Every Story Has A Beginning ✨</h3>
+
+        <h1>Favourite Chapter</h1>
+
+        <p>
+            Some people become memories...
+            <br>
+            Some become lessons...
+            <br><br>
+            But a very few become...
+            <br>
+            <b>Our Favourite Chapter.</b>
+        </p>
+
+        <button onclick="nextPage()">
+            Begin The Journey ❤️
+        </button>
+
+    </section>
+
+
+    <!-- Password -->
+    <section id="passwordPage" class="page hidden">
+
+        <div class="glass">
+
+            <h2>🔐 Secret Chapter</h2>
+
+            <p>
+                Every beautiful story has a secret.
+                <br><br>
+                Enter the password to continue.
+            </p>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Favourite Password"
+            >
+
+            <button onclick="checkPassword()">
+                Unlock ❤️
+            </button>
+
+            <small>
+                Hint: What's your favourite chapter?
+            </small>
+
+        </div>
+
+    </section>
+
+
+    <!-- Envelope -->
+    <section id="envelopePage" class="page hidden">
+
+        <div class="envelope" onclick="openEnvelope()">
+
+            <div class="cover"></div>
+
+            <div class="letter">
+                💌
+            </div>
+
+        </div>
+
+        <p class="tapText">
+            Tap the envelope
+        </p>
+
+    </section>
+
+
+    <!-- Letter -->
+    <section id="letterPage" class="page hidden">
+
+        <div class="paper">
+
+            <h2>💌 Favourite Chapter</h2>
+
+            <p id="typewriter"></p>
+
+            <button
+                id="nextChapterBtn"
+                onclick="goToChapter2()"
+            >
+                📖 Continue to Chapter 2
+            </button>
+
+        </div>
+
+    </section>
+    <!-- Chapter 2 -->
+
+<!-- Chapter 2 -->
+
+<section id="chapter2" class="page hidden">
+
+    <div class="chapterCard">
+
+        <div class="chapterNumber">
+            CHAPTER 02
+        </div>
+
+        <h2>The Little Moments... ✨</h2>
+
+ <div id="chapter2Story">
+
+    <div class="chapterIntro">
+        Maybe the biggest memories
+        are not always the loudest ones...
+        <br><br>
+        কিছু কিছু moment খুব ছোট হয়,
+        কিন্তু somehow সেগুলোই মনের মধ্যে
+        সবচেয়ে বেশি থেকে যায়। 🤍
+    </div>
+
+</div>
+
+<button id="chapter2NextBtn" onclick="startChapter2()">
+    ✨ Open This Chapter
+</button>
+
+</section>
+    <!-- Chapter 3 -->
+
+<section id="chapter3" class="hidden">
+
+    <div class="chapter3Paper">
+
+        <div class="chapterNumber">
+            CHAPTER 03
+        </div>
+
+        <h1>
+            The Part I Never Said... 💌
+        </h1>
+
+        <p id="chapter3Story"></p>
+
+        <button id="chapter3NextBtn" onclick="showNextChapter3Line()">
+            Continue ✨
+        </button>
+
+    </div>
+
+</section>
+    <!-- =========================
+     FINAL CHAPTER
+========================= -->
+
+<!-- =========================
+     FINAL CHAPTER
+========================= -->
+
+<section id="finalChapter" class="hidden">
+
+    <div class="finalReveal">
+
+        <div class="finalLabel">
+            ✦ ONE LAST THING ✦
+        </div>
+
+        <h1>
+            Before You Leave... ❤️
+        </h1>
+
+        <p class="finalHint">
+            There's something<br>
+            I kept just for you.
+        </p>
+
+        <button id="openFinalBtn" onclick="openFinalSurprise()">
+            💌 Open When You're Ready
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     BIRTHDAY REVEAL
+========================= -->
+
+
+<section id="birthdayReveal" class="hidden">
+
+    <!-- Celebration Effects -->
+    <div class="confetti">
+        <span>🎉</span>
+        <span>✨</span>
+        <span>🎊</span>
+        <span>💖</span>
+        <span>✨</span>
+        <span>🎉</span>
+        <span>💫</span>
+        <span>🎊</span>
+    </div>
+
+    <div class="birthdayContent">
+
+        <div class="tinyStars">
+            ✦   ✧   ✦
+        </div>
+
+        <p class="birthdaySmall">
+            Today is not just another day...
+        </p>
+
+        <h1>
+            HAPPY BIRTHDAY
+        </h1>
+
+        <h2>
+            Suma ❤️
+        </h2>
+
+        <!-- Birthday Picture -->
+        <div class="birthdayImageBox">
+
+            <img
+                src="birthday-surprise.png"
+                alt="Happy Birthday Suma"
+                class="birthday-surprise-image"
+            >
+
+        </div>
+
+        <p class="pictureLine">
+            We never got a picture like this... 🤍
+            <br>
+            So I made us one.
+        </p>
+
+        <div id="birthdayMessage"></div>
+
+        <button id="oneMoreBtn">
+            ✨ Continue
+        </button>
+
+    </div>
+
+</section>
+<!-- =========================
+     ULTIMATE ENDING
+========================= -->
+
+<section id="ultimateEnding" class="hidden">
+
+    <div class="endingContent">
+
+        <div class="endingHeart">
+            ❤️
+        </div>
+
+        <div id="ultimateText"></div>
+
+    </div>
+
+</section>
+    
+<!-- =========================
+     BIRTHDAY CELEBRATION
+========================= -->
+<!-- =========================
+     BIRTHDAY CELEBRATION
+========================= -->
+
+<section id="celebrationScene" class="hidden">
+
+    <div class="celebrationContent">
+
+        <div class="celebrationStars">
+            ✦ ✧ ✦ ✧ ✦
+        </div>
+
+        <p class="celebrationIntro">
+            But wait... 🤍
+        </p>
+
+        <h2>
+            Your birthday deserves
+            <br>
+            a little celebration. 🎂
+        </h2>
+
+        <!-- Cake -->
+        <div class="cakeScene">
+
+            <div class="cakeCandles">
+
+                <span class="candle">
+                    <span class="flame">🔥</span>
+                </span>
+
+                <span class="candle">
+                    <span class="flame">🔥</span>
+                </span>
+
+                <span class="candle">
+                    <span class="flame">🔥</span>
+                </span>
+
+            </div>
+
+            <div class="cakeTop">
+                💖
+            </div>
+
+            <div class="cakeBody">
+                🎂
+            </div>
+
+        </div>
+
+        <p class="cakeName">
+            A little cake for <b>Suma</b> ❤️
+        </p>
+
+        <p class="wishInstruction">
+            The candles are waiting... 🕯️
+            <br>
+            <span>Make a wish.</span>
+        </p>
+
+        <button
+            id="makeWishBtn"
+            onclick="startCelebration()">
+            🕯️ Make a Wish
+        </button>
+
+        <div id="celebrationMessage"></div>
+
+        <button
+            id="celebrationContinueBtn"
+            onclick="goToFinalMessage()"
+            style="display:none;">
+            Continue ✨
+        </button>
+
+    </div>
+
+    <!-- Celebration Effects -->
+
+    <div id="celebrationConfetti"></div>
+
+</section>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
