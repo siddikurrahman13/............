@@ -1375,3 +1375,34 @@ window.addEventListener(
 
     }
 );
+/* =========================
+   GLOBAL NAVIGATION HOOK
+========================= */
+
+(function () {
+
+    const originalHide = hideAllPages;
+
+    window.hideAllPages = function () {
+
+        const visible =
+            document.querySelector(
+                ".page:not(.hidden), #welcome:not(.hidden), #chapter2:not(.hidden), #chapter3:not(.hidden), #finalChapter:not(.hidden), #birthdayReveal:not(.hidden), #celebrationScene:not(.hidden), #ultimateEnding:not(.hidden)"
+            );
+
+        if (visible && visible.id) {
+
+            if (
+                navigationHistory.length === 0 ||
+                navigationHistory[navigationHistory.length - 1] !== visible.id
+            ) {
+                navigationHistory.push(visible.id);
+            }
+
+        }
+
+        originalHide();
+
+    };
+
+})();
