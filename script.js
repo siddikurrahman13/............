@@ -1,4 +1,40 @@
 /* =========================
+   GLOBAL NAVIGATION MEMORY
+========================= */
+
+let navigationHistory = [];
+
+
+/* =========================
+   GLOBAL BACK SYSTEM
+========================= */
+
+let currentPage = "welcome";
+
+
+function goBack() {
+
+    if (navigationHistory.length === 0) {
+        return;
+    }
+
+    const previousPage =
+        navigationHistory.pop();
+
+    hideAllPages();
+
+    const page =
+        document.getElementById(previousPage);
+
+    if (!page) return;
+
+    page.classList.remove("hidden");
+
+    cinematicEnter(previousPage);
+
+}
+
+/* =========================
    HIDE ALL PAGES
 ========================= */
 
