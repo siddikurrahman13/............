@@ -2689,12 +2689,19 @@ button:hover{
    MOBILE
 ========================= */
 
+/* =========================
+   MOBILE
+========================= */
+
 @media(max-width:600px){
 
     .global-nav {
 
         left: 14px;
-        bottom: 14px;
+        right: 14px;
+
+        top: 14px;
+        bottom: auto;
 
         gap: 8px;
 
@@ -2702,10 +2709,13 @@ button:hover{
 
     .global-nav button {
 
-        width: 44px;
+        width: auto;
+        min-width: 48px;
         height: 44px;
 
-        font-size: 18px;
+        padding: 0 16px;
+
+        font-size: 16px;
 
     }
 
