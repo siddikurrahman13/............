@@ -33,6 +33,38 @@ function goBack() {
     cinematicEnter(previousPage);
 
 }
+/* =========================
+   GLOBAL PAGE TRACKER
+========================= */
+
+const originalHideAllPages = hideAllPages;
+
+function showPage(id) {
+
+    const current =
+        document.querySelector(
+            ".page:not(.hidden), #welcome:not(.hidden), #chapter2:not(.hidden), #chapter3:not(.hidden), #finalChapter:not(.hidden), #birthdayReveal:not(.hidden), #celebrationScene:not(.hidden), #ultimateEnding:not(.hidden)"
+        );
+
+    if (current && current.id !== id) {
+        navigationHistory.push(current.id);
+    }
+
+    originalHideAllPages();
+
+    const page =
+        document.getElementById(id);
+
+    if (!page) return;
+
+    page.classList.remove("hidden");
+
+    page.style.display = "";
+
+    cinematicEnter(id);
+
+    currentPage = id;
+}
 
 /* =========================
    HIDE ALL PAGES
