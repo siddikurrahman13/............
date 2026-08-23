@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyVerse 2.0</title>
+    <title>StudyVerse 2.0 - HSC Edition</title>
     <!-- Tailwind CSS for UI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Analytics -->
@@ -27,7 +27,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-sm tracking-wide">StudyVerse 2.0</h1>
-                    <p class="text-xs text-indigo-400 font-semibold" id="level-title">Lvl 1 • Beginner</p>
+                    <p class="text-xs text-indigo-400 font-semibold" id="level-title">Lvl 1 • Scholar</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -43,7 +43,7 @@
         </div>
         <!-- Level Progress Bar -->
         <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
-            <div id="level-progress" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full w-0% transition-all duration-300"></div>
+            <div id="level-progress" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full w-0 transition-all duration-300"></div>
         </div>
     </header>
 
@@ -96,31 +96,56 @@
             </div>
         </div>
 
-        <!-- TAB 2: CHAPTER TRACKER -->
+        <!-- TAB 2: CHAPTER TRACKER (FULL HSC SYLLABUS) -->
         <div id="tab-tracker" class="tab-content hidden space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 class="font-bold text-lg">HSC Syllabus Tracker</h2>
-                <select id="subject-select" onchange="renderChapters()" class="bg-slate-800 text-xs border border-slate-700 rounded-xl px-3 py-2 text-indigo-300 focus:outline-none">
-                    <option value="Physics">Physics</option>
-                    <option value="Chemistry">Chemistry</option>
-                    <option value="HigherMath">Higher Math</option>
-                    <option value="Biology">Biology</option>
+            <div class="flex flex-col gap-2">
+                <h2 class="font-bold text-lg">HSC Full Syllabus Tracker</h2>
+                <select id="subject-select" onchange="renderChapters()" class="bg-slate-800 text-xs border border-slate-700 rounded-xl p-3 text-indigo-300 focus:outline-none w-full font-semibold">
+                    <optgroup label="Physics (পদার্থবিজ্ঞান)">
+                        <option value="Physics1">Physics 1st Paper (পদার্থ ১ম)</option>
+                        <option value="Physics2">Physics 2nd Paper (পদার্থ ২য়)</option>
+                    </optgroup>
+                    <optgroup label="Chemistry (রসায়ন)">
+                        <option value="Chemistry1">Chemistry 1st Paper (রসায়ন ১ম)</option>
+                        <option value="Chemistry2">Chemistry 2nd Paper (রসায়ন ২য়)</option>
+                    </optgroup>
+                    <optgroup label="Higher Math (উচ্চতর গণিত)">
+                        <option value="HigherMath1">Higher Math 1st Paper (উচ্চতর গণিত ১ম)</option>
+                        <option value="HigherMath2">Higher Math 2nd Paper (উচ্চতর গণিত ২য়)</option>
+                    </optgroup>
+                    <optgroup label="Biology (জীববিজ্ঞান)">
+                        <option value="Biology1">Botany / Biology 1st Paper (উদ্ভিদবিজ্ঞান)</option>
+                        <option value="Biology2">Zoology / Biology 2nd Paper (প্রাণীবিজ্ঞান)</option>
+                    </optgroup>
                 </select>
             </div>
             <div id="chapter-list" class="space-y-3"></div>
         </div>
 
-        <!-- TAB 3: POMODORO TIMER -->
+        <!-- TAB 3: NOTES & QUICK REVISION (NEW) -->
+        <div id="tab-notes" class="tab-content hidden space-y-4">
+            <h2 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-note-sticky text-amber-400"></i> Study Notes & Formulas</h2>
+            
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3">
+                <input type="text" id="note-title" placeholder="নোট বা সূত্রের শিরোনাম (e.g. ভেক্টর সূত্রাবলি)" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500">
+                <textarea id="note-content" rows="3" placeholder="এখানে গুরুত্বপূর্ণ পয়েন্ট, সূত্র বা ডাউট লিখে রাখুন..." class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 p-3 rounded-xl focus:outline-none focus:border-indigo-500"></textarea>
+                <button onclick="saveNote()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Save Note (+10 XP)
+                </button>
+            </div>
+
+            <div id="notes-container" class="space-y-3"></div>
+        </div>
+
+        <!-- TAB 4: POMODORO TIMER -->
         <div id="tab-timer" class="tab-content hidden space-y-4 text-center">
             <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl flex flex-col items-center">
                 <h2 class="text-sm font-bold text-indigo-400 tracking-wider uppercase mb-4">Focus Pomodoro</h2>
                 
-                <!-- Timer Display -->
                 <div class="w-48 h-48 rounded-full border-4 border-indigo-500/30 flex items-center justify-center my-2 relative">
                     <span id="timer-display" class="text-4xl font-extrabold tracking-tight">25:00</span>
                 </div>
 
-                <!-- Timer Controls -->
                 <div class="flex gap-4 mt-6">
                     <button id="start-btn" onclick="toggleTimer()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg transition">Start</button>
                     <button onclick="resetTimer()" class="bg-slate-700 hover:bg-slate-600 px-6 py-2.5 rounded-xl font-bold text-sm transition">Reset</button>
@@ -129,72 +154,159 @@
             </div>
         </div>
 
-        <!-- TAB 4: ANALYTICS -->
+        <!-- TAB 5: ANALYTICS & BADGES -->
         <div id="tab-analytics" class="tab-content hidden space-y-4">
-            <h2 class="font-bold text-lg">Study Analytics</h2>
+            <h2 class="font-bold text-lg">Study Analytics & Achievements</h2>
             <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md">
                 <h3 class="text-xs font-bold text-slate-400 mb-3">Weekly Study Time (Minutes)</h3>
                 <canvas id="weeklyChart" class="w-full"></canvas>
             </div>
-        </div>
 
-        <!-- TAB 5: BADGES & ACHIEVEMENTS -->
-        <div id="tab-badges" class="tab-content hidden space-y-4">
-            <h2 class="font-bold text-lg">Achievements & Badges</h2>
+            <h3 class="font-bold text-md mt-4">Achievements</h3>
             <div class="grid grid-cols-2 gap-3" id="badge-grid"></div>
         </div>
 
     </main>
 
-    <!-- Bottom Navigation Bar (Mobile Optimized) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800/90 backdrop-blur border-t border-slate-700 px-4 py-2 flex justify-around items-center z-50">
+    <!-- Bottom Navigation Bar (Updated with Notes) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800/90 backdrop-blur border-t border-slate-700 px-2 py-2 flex justify-around items-center z-50">
         <button onclick="switchTab('dashboard')" class="nav-btn text-indigo-400 flex flex-col items-center gap-1" id="nav-dashboard">
-            <i class="fa-solid fa-house text-lg"></i>
+            <i class="fa-solid fa-house text-base"></i>
             <span class="text-[10px] font-medium">Home</span>
         </button>
         <button onclick="switchTab('tracker')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-tracker">
-            <i class="fa-solid fa-book-open text-lg"></i>
+            <i class="fa-solid fa-book-open text-base"></i>
             <span class="text-[10px] font-medium">Syllabus</span>
         </button>
+        <button onclick="switchTab('notes')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-notes">
+            <i class="fa-solid fa-note-sticky text-base"></i>
+            <span class="text-[10px] font-medium">Notes</span>
+        </button>
         <button onclick="switchTab('timer')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-timer">
-            <i class="fa-solid fa-stopwatch text-lg"></i>
+            <i class="fa-solid fa-stopwatch text-base"></i>
             <span class="text-[10px] font-medium">Timer</span>
         </button>
         <button onclick="switchTab('analytics')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-analytics">
-            <i class="fa-solid fa-chart-line text-lg"></i>
-            <span class="text-[10px] font-medium">Analytics</span>
-        </button>
-        <button onclick="switchTab('badges')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-badges">
-            <i class="fa-solid fa-award text-lg"></i>
-            <span class="text-[10px] font-medium">Badges</span>
+            <i class="fa-solid fa-chart-line text-base"></i>
+            <span class="text-[10px] font-medium">Stats</span>
         </button>
     </nav>
 
-    <!-- App State & Engine Logic -->
+    <!-- JavaScript Engine -->
     <script>
-        // State Management
-        let appState = JSON.parse(localStorage.getItem('studyVerseState')) || {
+        // Full HSC Syllabus Data Base
+        const hscSyllabus = {
+            Physics1: [
+                {id: 1, name: "১. ভৌতজগৎ ও পরিমাপ", status: "none"},
+                {id: 2, name: "২. ভেক্টর", status: "none"},
+                {id: 3, name: "৩. গতিবিদ্যা", status: "none"},
+                {id: 4, name: "৪. নিউটনীয় বলবিদ্যা", status: "none"},
+                {id: 5, name: "৫. কাজ, শক্তি ও ক্ষমতা", status: "none"},
+                {id: 6, name: "৬. মহাকর্ষ ও অভিকর্ষ", status: "none"},
+                {id: 7, name: "৭. পদার্থের গাঠনিক ধর্ম", status: "none"},
+                {id: 8, name: "৮. পর্যায়বৃত্ত গতি", status: "none"},
+                {id: 9, name: "৯. তরঙ্গ", status: "none"},
+                {id: 10, name: "১০. আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব", status: "none"}
+            ],
+            Physics2: [
+                {id: 1, name: "১. তাপগতিবিদ্যা", status: "none"},
+                {id: 2, name: "২. স্থির তড়িৎ", status: "none"},
+                {id: 3, name: "৩. চল তড়িৎ", status: "none"},
+                {id: 4, name: "৪. তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চৌম্বকত্ব", status: "none"},
+                {id: 5, name: "৫. তাড়িতচৌম্বকীয় আবেশ ও পরিবর্তী প্রবাহ", status: "none"},
+                {id: 6, name: "৬. জ্যামিতিক আলোকবিজ্ঞান", status: "none"},
+                {id: 7, name: "৭. ভৌত আলোকবিজ্ঞান", status: "none"},
+                {id: 8, name: "৮. আধুনিক পদার্থবিজ্ঞানের সূচনা", status: "none"},
+                {id: 9, name: "৯. পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান", status: "none"},
+                {id: 10, name: "১০. সেমিকন্ডাক্টর ও ইলেকট্রনিক্স", status: "none"},
+                {id: 11, name: "১১. জ্যোতির্বিজ্ঞান", status: "none"}
+            ],
+            Chemistry1: [
+                {id: 1, name: "১. ল্যাবরেটরির নিরাপদ ব্যবহার", status: "none"},
+                {id: 2, name: "২. গুণগত রসায়ন", status: "none"},
+                {id: 3, name: "৩. মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন", status: "none"},
+                {id: 4, name: "৪. রাসায়নিক পরিবর্তন", status: "none"},
+                {id: 5, name: "৫. কর্মমুখী রসায়ন", status: "none"}
+            ],
+            Chemistry2: [
+                {id: 1, name: "১. পরিবেশ রসায়ন", status: "none"},
+                {id: 2, name: "২. জৈব রসায়ন", status: "none"},
+                {id: 3, name: "৩. পরিমাণগত রসায়ন", status: "none"},
+                {id: 4, name: "৪. তড়িৎ রসায়ন", status: "none"},
+                {id: 5, name: "৫. অর্থনৈতিক রসায়ন", status: "none"}
+            ],
+            HigherMath1: [
+                {id: 1, name: "১. ম্যাট্রিক্স ও নির্ণায়ক", status: "none"},
+                {id: 2, name: "২. ভেক্টর", status: "none"},
+                {id: 3, name: "৩. সরলরেখা", status: "none"},
+                {id: 4, name: "৪. বৃত্ত", status: "none"},
+                {id: 5, name: "৫. বিন্যাস ও সমাবেশ", status: "none"},
+                {id: 6, name: "৬. ত্রিকোণমিতিক অনুপাত", status: "none"},
+                {id: 7, name: "৭.সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত", status: "none"},
+                {id: 8, name: "৮. ফাংশন ও ফাংশনের লেখচিত্র", status: "none"},
+                {id: 9, name: "৯. অন্তরীকরণ (Differentiation)", status: "none"},
+                {id: 10, name: "১০. যোগজীকরণ (Integration)", status: "none"}
+            ],
+            HigherMath2: [
+                {id: 1, name: "১. বাস্তব সংখ্যা ও অসমতা", status: "none"},
+                {id: 2, name: "২. রৈখিক প্রোগ্রামন", status: "none"},
+                {id: 3, name: "৩. জটিল সংখ্যা", status: "none"},
+                {id: 4, name: "৪. বহুপদী ও বহুপদী সমীকরণ", status: "none"},
+                {id: 5, name: "৫. দ্বিপদী বিস্তৃতি", status: "none"},
+                {id: 6, name: "৬. কনিক", status: "none"},
+                {id: 7, name: "৭. বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ", status: "none"},
+                {id: 8, name: "৮. স্থিতিবিদ্যা (Statics)", status: "none"},
+                {id: 9, name: "৯. সমতলে বস্তুকণার গতি (Dynamics)", status: "none"},
+                {id: 10, name: "১০. সম্ভাবনা (Probability)", status: "none"}
+            ],
+            Biology1: [
+                {id: 1, name: "১. কোষ ও এর গঠন", status: "none"},
+                {id: 2, name: "২. কোষ বিভাজন", status: "none"},
+                {id: 3, name: "৩. কোষ রসায়ন", status: "none"},
+                {id: 4, name: "৪. অনুজীব", status: "none"},
+                {id: 5, name: "৫. শৈবাল ও ছত্রাক", status: "none"},
+                {id: 6, name: "৬. ব্রায়োফাইটা ও টেরিডোফাইটা", status: "none"},
+                {id: 7, name: "৭. নগ্নবীজী ও আবৃতবীজী উদ্ভিদ", status: "none"},
+                {id: 8, name: "৮. টিস্যু ও টিস্যুতন্ত্র", status: "none"},
+                {id: 9, name: "৯. উদ্ভিদ শারীরতত্ত্ব", status: "none"},
+                {id: 10, name: "১০. উদ্ভিদ প্রজনন", status: "none"},
+                {id: 11, name: "১১. জীবপ্রযুক্তি", status: "none"},
+                {id: 12, name: "১২. জীবের পরিবেশ, বিস্তার ও সংরক্ষণ", status: "none"}
+            ],
+            Biology2: [
+                {id: 1, name: "১. প্রাণীর বিভিন্নতা ও শ্রেণীবিন্যাস", status: "none"},
+                {id: 2, name: "২. প্রাণীর পরিচিতি (হাইড্রা, রুই মাছ, ঘাসফড়িং)", status: "none"},
+                {id: 3, name: "৩. মানব শারীরতত্ত্ব: পরিপাক ও শোষণ", status: "none"},
+                {id: 4, name: "৪. মানব শারীরতত্ত্ব: রক্ত ও সংবহন", status: "none"},
+                {id: 5, name: "৫. মানব শারীরতত্ত্ব: শ্বাসক্রিয়া ও শ্বসন", status: "none"},
+                {id: 6, name: "৬. মানব শারীরতত্ত্ব: বর্জ্য ও নিষ্কাশন", status: "none"},
+                {id: 7, name: "৭. মানব শারীরতত্ত্ব: চলন ও অঙ্গচালনা", status: "none"},
+                {id: 8, name: "৮. মানব শারীরতত্ত্ব: সমন্বয় ও নিয়ন্ত্রণ", status: "none"},
+                {id: 9, name: "৯. মানব জীবনের ধারাবাহিকতা", status: "none"},
+                {id: 10, name: "১০. মানবদেহের প্রতিরক্ষা (Immunity)", status: "none"},
+                {id: 11, name: "১১. জিনতত্ত্ব ও বিবর্তন", status: "none"},
+                {id: 12, name: "১২. প্রাণীর আচরণ", status: "none"}
+            ]
+        };
+
+        // App State Management
+        let appState = JSON.parse(localStorage.getItem('studyVerseHSCState')) || {
             xp: 0,
             streak: 1,
-            lastLogin: new Date().toDateString(),
             examDate: null,
             goals: [],
-            chapters: {
-                Physics: [{id: 1, name: "ভৌতজগত ও পরিমাপ", status: "none"}, {id: 2, name: "ভেক্টর", status: "none"}, {id: 3, name: "গতিবিদ্যা", status: "none"}],
-                Chemistry: [{id: 1, name: "গুণগত রসায়ন", status: "none"}, {id: 2, name: "মৌলের পর্যায়বৃত্ত ধর্ম", status: "none"}],
-                HigherMath: [{id: 1, name: "ম্যাট্রিক্স ও নির্ণায়ক", status: "none"}, {id: 2, name: "সরলরেখা", status: "none"}],
-                Biology: [{id: 1, name: "কোষ ও এর গঠন", status: "none"}, {id: 2, name: "কোষ বিভাজন", status: "none"}]
-            },
+            notes: [],
+            chapters: hscSyllabus,
             weeklyData: [30, 45, 60, 20, 90, 50, 0]
         };
 
         function saveState() {
-            localStorage.setItem('studyVerseState', JSON.stringify(appState));
+            localStorage.setItem('studyVerseHSCState', JSON.stringify(appState));
             updateHeader();
             updateRecommendation();
         }
 
-        // Header Update Logic
+        // Header Update
         function updateHeader() {
             document.getElementById('xp-count').innerText = `${appState.xp} XP`;
             document.getElementById('streak-count').innerText = `${appState.streak} Days`;
@@ -211,7 +323,7 @@
             saveState();
         }
 
-        // Tab Navigation Logic
+        // Tab Navigation
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => {
@@ -224,11 +336,11 @@
             document.getElementById(`nav-${tabName}`).classList.remove('text-slate-400');
 
             if (tabName === 'tracker') renderChapters();
-            if (tabName === 'analytics') renderChart();
-            if (tabName === 'badges') renderBadges();
+            if (tabName === 'notes') renderNotes();
+            if (tabName === 'analytics') { renderChart(); renderBadges(); }
         }
 
-        // Daily Goal Logic
+        // Goals Logic
         function addGoal() {
             const input = document.getElementById('goal-input');
             if (!input.value.trim()) return;
@@ -271,14 +383,18 @@
             const container = document.getElementById('chapter-list');
             container.innerHTML = '';
 
+            if (!appState.chapters[subject]) {
+                appState.chapters[subject] = hscSyllabus[subject];
+            }
+
             appState.chapters[subject].forEach(ch => {
                 container.innerHTML += `
-                    <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex justify-between items-center">
+                    <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex flex-col gap-2">
                         <span class="text-xs font-semibold text-slate-200">${ch.name}</span>
-                        <div class="flex space-x-1">
-                            <button onclick="setChapterStatus('${subject}', ${ch.id}, 'done')" class="px-2 py-1 text-[10px] rounded-lg ${ch.status === 'done' ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'}">✅ Done</button>
-                            <button onclick="setChapterStatus('${subject}', ${ch.id}, 'progress')" class="px-2 py-1 text-[10px] rounded-lg ${ch.status === 'progress' ? 'bg-amber-600 text-white' : 'bg-slate-700 text-slate-400'}">⏳ In Dev</button>
-                            <button onclick="setChapterStatus('${subject}', ${ch.id}, 'weak')" class="px-2 py-1 text-[10px] rounded-lg ${ch.status === 'weak' ? 'bg-rose-600 text-white' : 'bg-slate-700 text-slate-400'}">🔴 Weak</button>
+                        <div class="flex justify-end space-x-1">
+                            <button onclick="setChapterStatus('${subject}', ${ch.id}, 'done')" class="px-2 py-1 text-[10px] rounded-lg ${ch.status === 'done' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-700 text-slate-400'}">✅ Done</button>
+                            <button onclick="setChapterStatus('${subject}', ${ch.id}, 'progress')" class="px-2 py-1 text-[10px] rounded-lg ${ch.status === 'progress' ? 'bg-amber-600 text-white font-bold' : 'bg-slate-700 text-slate-400'}">⏳ Reading</button>
+                            <button onclick="setChapterStatus('${subject}', ${ch.id}, 'weak')" class="px-2 py-1 text-[10px] rounded-lg ${ch.status === 'weak' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-700 text-slate-400'}">🔴 Weak</button>
                         </div>
                     </div>
                 `;
@@ -295,12 +411,61 @@
             }
         }
 
+        // Notes System Logic
+        function saveNote() {
+            const title = document.getElementById('note-title').value.trim();
+            const content = document.getElementById('note-content').value.trim();
+
+            if (!title || !content) {
+                alert("শিরোনাম এবং নোটের বিবরণ লিখুন!");
+                return;
+            }
+
+            appState.notes.unshift({ id: Date.now(), title, content, date: new Date().toLocaleDateString('bn-BD') });
+            addXP(10);
+            
+            document.getElementById('note-title').value = '';
+            document.getElementById('note-content').value = '';
+            
+            saveState();
+            renderNotes();
+        }
+
+        function deleteNote(id) {
+            appState.notes = appState.notes.filter(n => n.id !== id);
+            saveState();
+            renderNotes();
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            container.innerHTML = '';
+
+            if (appState.notes.length === 0) {
+                container.innerHTML = `<p class="text-xs text-center text-slate-500 py-4">এখনো কোনো নোট সেভ করা হয়নি।</p>`;
+                return;
+            }
+
+            appState.notes.forEach(note => {
+                container.innerHTML += `
+                    <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 relative">
+                        <button onclick="deleteNote(${note.id})" class="absolute top-3 right-3 text-slate-500 hover:text-rose-400 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <h3 class="text-xs font-bold text-amber-400 mb-1">${note.title}</h3>
+                        <p class="text-xs text-slate-300 whitespace-pre-line leading-relaxed mb-2">${note.content}</p>
+                        <span class="text-[9px] text-slate-500">${note.date}</span>
+                    </div>
+                `;
+            });
+        }
+
         // Smart Recommendation Engine
         function updateRecommendation() {
             let weakChapters = [];
             for (let sub in appState.chapters) {
                 appState.chapters[sub].forEach(ch => {
-                    if (ch.status === 'weak') weakChapters.push(`${sub} - ${ch.name}`);
+                    if (ch.status === 'weak') weakChapters.push(`${ch.name}`);
                 });
             }
 
@@ -308,11 +473,11 @@
             if (weakChapters.length > 0) {
                 recBox.innerHTML = `আপনার <strong>${weakChapters[0]}</strong> অধ্যায়টি দুর্বল হিসেবে চিহ্নিত আছে। আজ এটি রিভিশন দিন!`;
             } else {
-                recBox.innerHTML = `সবকিছু ঠিকঠাক চলছে! আপনার পড়ার সিলেবাস আপডেট করুন এবং ডেইলি গোল সেট করুন।`;
+                recBox.innerHTML = `সবকিছু ঠিকঠাক চলছে! সিলেবাসের অধ্যায়গুলো রিভিশন দিন ও গোল সেট করুন।`;
             }
         }
 
-        // Pomodoro Timer Logic
+        // Timer Logic
         let timerInterval = null;
         let timeLeft = 25 * 60;
         let isRunning = false;
@@ -357,7 +522,7 @@
             document.getElementById('timer-display').innerText = `${mins}:${secs}`;
         }
 
-        // Countdown System
+        // Countdown Logic
         function setExamDate() {
             const input = prompt("পরীক্ষার তারিখ দিন (YYYY-MM-DD):", "2026-06-30");
             if (input) {
@@ -380,7 +545,7 @@
             const badges = [
                 { name: "Novice Scholar", desc: "Reach Level 1", icon: "fa-graduation-cap", unlocked: appState.xp >= 0 },
                 { name: "Pomodoro King", desc: "Complete 1 session", icon: "fa-stopwatch", unlocked: appState.xp >= 50 },
-                { name: "Streak Master", desc: "3 Day Streak", icon: "fa-fire", unlocked: appState.streak >= 3 },
+                { name: "Note Taker", desc: "Save a study note", icon: "fa-pen-to-square", unlocked: appState.notes.length > 0 },
                 { name: "HSC Warrior", desc: "Reach Level 5", icon: "fa-shield-halved", unlocked: appState.xp >= 400 }
             ];
 
