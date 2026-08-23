@@ -1,1 +1,1 @@
-stufy
+study
