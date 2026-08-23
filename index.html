@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyVerse 2.0 - HSC Edition</title>
+    <title>StudyVerse 2.0 - Ultimate Edition</title>
     <!-- Tailwind CSS for UI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Analytics -->
@@ -14,9 +14,15 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Flashcard Flip Animation */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen pb-24 hide-scrollbar select-none">
+<body id="app-body" class="bg-slate-900 text-slate-100 min-h-screen pb-24 hide-scrollbar select-none transition-colors duration-300">
 
     <!-- Top Header / Gamer Profile Bar -->
     <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 p-4 sticky top-0 z-50">
@@ -31,6 +37,9 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
+                <button onclick="switchTab('settings')" class="text-slate-400 hover:text-indigo-400 text-sm p-1">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
                 <div class="bg-slate-700/60 px-3 py-1 rounded-full flex items-center space-x-1 border border-slate-600">
                     <span class="text-amber-400 text-sm">🔥</span>
                     <span id="streak-count" class="text-xs font-bold text-amber-400">0 Days</span>
@@ -96,10 +105,15 @@
             </div>
         </div>
 
-        <!-- TAB 2: CHAPTER TRACKER (FULL HSC SYLLABUS) -->
+        <!-- TAB 2: CHAPTER TRACKER (FULL HSC + CUSTOM SUBJECTS) -->
         <div id="tab-tracker" class="tab-content hidden space-y-4">
             <div class="flex flex-col gap-2">
-                <h2 class="font-bold text-lg">HSC Full Syllabus Tracker</h2>
+                <div class="flex justify-between items-center">
+                    <h2 class="font-bold text-lg">Syllabus Tracker</h2>
+                    <button onclick="addCustomSubjectPrompt()" class="text-xs bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-xl font-bold transition">
+                        + Add Subject
+                    </button>
+                </div>
                 <select id="subject-select" onchange="renderChapters()" class="bg-slate-800 text-xs border border-slate-700 rounded-xl p-3 text-indigo-300 focus:outline-none w-full font-semibold">
                     <optgroup label="Physics (পদার্থবিজ্ঞান)">
                         <option value="Physics1">Physics 1st Paper (পদার্থ ১ম)</option>
@@ -117,12 +131,21 @@
                         <option value="Biology1">Botany / Biology 1st Paper (উদ্ভিদবিজ্ঞান)</option>
                         <option value="Biology2">Zoology / Biology 2nd Paper (প্রাণীবিজ্ঞান)</option>
                     </optgroup>
+                    <optgroup label="Custom Subjects (কাস্টম বিষয়সমূহ)" id="custom-subject-options">
+                    </optgroup>
                 </select>
             </div>
+            
+            <div class="flex justify-end">
+                <button onclick="addCustomChapterPrompt()" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add Custom Chapter to selected subject
+                </button>
+            </div>
+
             <div id="chapter-list" class="space-y-3"></div>
         </div>
 
-        <!-- TAB 3: NOTES & QUICK REVISION (NEW) -->
+        <!-- TAB 3: NOTES & QUICK REVISION -->
         <div id="tab-notes" class="tab-content hidden space-y-4">
             <h2 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-note-sticky text-amber-400"></i> Study Notes & Formulas</h2>
             
@@ -137,24 +160,54 @@
             <div id="notes-container" class="space-y-3"></div>
         </div>
 
-        <!-- TAB 4: POMODORO TIMER -->
+        <!-- TAB 4: FLASHCARDS (ACTIVE RECALL) -->
+        <div id="tab-flashcards" class="tab-content hidden space-y-4">
+            <h2 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-clone text-purple-400"></i> Active Recall Flashcards</h2>
+            
+            <!-- Add Flashcard Box -->
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3">
+                <input type="text" id="card-front" placeholder="সামনের অংশ (প্রশ্ন/বিষয়, e.g. ওমের সূত্র)" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500">
+                <input type="text" id="card-back" placeholder="পেছনের অংশ (উত্তর/সংজ্ঞা, e.g. V = IR)" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500">
+                <button onclick="saveFlashcard()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add Flashcard (+10 XP)
+                </button>
+            </div>
+
+            <div id="flashcard-container" class="space-y-3"></div>
+        </div>
+
+        <!-- TAB 5: POMODORO TIMER & AMBIENT SOUNDS -->
         <div id="tab-timer" class="tab-content hidden space-y-4 text-center">
             <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl flex flex-col items-center">
-                <h2 class="text-sm font-bold text-indigo-400 tracking-wider uppercase mb-4">Focus Pomodoro</h2>
+                <h2 class="text-sm font-bold text-indigo-400 tracking-wider uppercase mb-2">Focus Pomodoro</h2>
                 
                 <div class="w-48 h-48 rounded-full border-4 border-indigo-500/30 flex items-center justify-center my-2 relative">
                     <span id="timer-display" class="text-4xl font-extrabold tracking-tight">25:00</span>
                 </div>
 
-                <div class="flex gap-4 mt-6">
+                <div class="flex gap-4 mt-4">
                     <button id="start-btn" onclick="toggleTimer()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg transition">Start</button>
                     <button onclick="resetTimer()" class="bg-slate-700 hover:bg-slate-600 px-6 py-2.5 rounded-xl font-bold text-sm transition">Reset</button>
                 </div>
+
+                <!-- Ambient Sound Selector -->
+                <div class="mt-6 w-full text-left">
+                    <label class="text-xs font-bold text-slate-400 mb-2 block flex items-center gap-2">
+                        <i class="fa-solid fa-headphones text-indigo-400"></i> Ambient Focus Sound:
+                    </label>
+                    <select id="ambient-select" onchange="changeAmbientSound()" class="w-full bg-slate-900 border border-slate-700 text-xs text-indigo-300 p-2.5 rounded-xl focus:outline-none">
+                        <option value="none">Off (No Sound)</option>
+                        <option value="rain">🌧️ White Noise / Rain Simulation</option>
+                        <option value="forest">🌲 Forest Ambience</option>
+                        <option value="waves">🌊 Ocean Waves</option>
+                    </select>
+                </div>
+
                 <p class="text-xs text-slate-400 mt-4">সেশন সম্পন্ন করলে <strong>+50 XP</strong> অর্জিত হবে!</p>
             </div>
         </div>
 
-        <!-- TAB 5: ANALYTICS & BADGES -->
+        <!-- TAB 6: ANALYTICS & BADGES -->
         <div id="tab-analytics" class="tab-content hidden space-y-4">
             <h2 class="font-bold text-lg">Study Analytics & Achievements</h2>
             <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md">
@@ -166,142 +219,137 @@
             <div class="grid grid-cols-2 gap-3" id="badge-grid"></div>
         </div>
 
+        <!-- TAB 7: SETTINGS & BACKUP -->
+        <div id="tab-settings" class="tab-content hidden space-y-4">
+            <h2 class="font-bold text-lg">App Settings & Data</h2>
+            
+            <!-- Theme Changer -->
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3">
+                <h3 class="text-xs font-bold text-indigo-400">Color Theme</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setTheme('slate')" class="p-2 bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold">Slate Dark</button>
+                    <button onclick="setTheme('midnight')" class="p-2 bg-blue-950 border border-blue-700 rounded-xl text-xs font-bold">Midnight</button>
+                    <button onclick="setTheme('zinc')" class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-xs font-bold">Minimal Zinc</button>
+                </div>
+            </div>
+
+            <!-- Export / Import Backup -->
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3">
+                <h3 class="text-xs font-bold text-indigo-400">Data Backup & Restore</h3>
+                <p class="text-[11px] text-slate-400">আপনার সব XP, Streak, Notes এবং Progress ডাটা ফাইল হিসেবে নামিয়ে রাখুন অথবা রিস্টোর করুন।</p>
+                <div class="flex gap-2">
+                    <button onclick="exportData()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-2 rounded-xl text-xs font-bold transition">
+                        <i class="fa-solid fa-download"></i> Export JSON
+                    </button>
+                    <label class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-xl text-xs font-bold transition text-center cursor-pointer">
+                        <i class="fa-solid fa-upload"></i> Import JSON
+                        <input type="file" id="import-file" onchange="importData(event)" class="hidden" accept=".json">
+                    </label>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <!-- Bottom Navigation Bar (Updated with Notes) -->
+    <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-800/90 backdrop-blur border-t border-slate-700 px-2 py-2 flex justify-around items-center z-50">
         <button onclick="switchTab('dashboard')" class="nav-btn text-indigo-400 flex flex-col items-center gap-1" id="nav-dashboard">
             <i class="fa-solid fa-house text-base"></i>
-            <span class="text-[10px] font-medium">Home</span>
+            <span class="text-[9px] font-medium">Home</span>
         </button>
         <button onclick="switchTab('tracker')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-tracker">
             <i class="fa-solid fa-book-open text-base"></i>
-            <span class="text-[10px] font-medium">Syllabus</span>
+            <span class="text-[9px] font-medium">Syllabus</span>
         </button>
         <button onclick="switchTab('notes')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-notes">
             <i class="fa-solid fa-note-sticky text-base"></i>
-            <span class="text-[10px] font-medium">Notes</span>
+            <span class="text-[9px] font-medium">Notes</span>
+        </button>
+        <button onclick="switchTab('flashcards')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-flashcards">
+            <i class="fa-solid fa-clone text-base"></i>
+            <span class="text-[9px] font-medium">Cards</span>
         </button>
         <button onclick="switchTab('timer')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-timer">
             <i class="fa-solid fa-stopwatch text-base"></i>
-            <span class="text-[10px] font-medium">Timer</span>
+            <span class="text-[9px] font-medium">Timer</span>
         </button>
         <button onclick="switchTab('analytics')" class="nav-btn text-slate-400 flex flex-col items-center gap-1" id="nav-analytics">
             <i class="fa-solid fa-chart-line text-base"></i>
-            <span class="text-[10px] font-medium">Stats</span>
+            <span class="text-[9px] font-medium">Stats</span>
         </button>
     </nav>
 
     <!-- JavaScript Engine -->
     <script>
-        // Full HSC Syllabus Data Base
+        // Full HSC Syllabus Base
         const hscSyllabus = {
             Physics1: [
-                {id: 1, name: "১. ভৌতজগৎ ও পরিমাপ", status: "none"},
-                {id: 2, name: "২. ভেক্টর", status: "none"},
-                {id: 3, name: "৩. গতিবিদ্যা", status: "none"},
-                {id: 4, name: "৪. নিউটনীয় বলবিদ্যা", status: "none"},
-                {id: 5, name: "৫. কাজ, শক্তি ও ক্ষমতা", status: "none"},
-                {id: 6, name: "৬. মহাকর্ষ ও অভিকর্ষ", status: "none"},
-                {id: 7, name: "৭. পদার্থের গাঠনিক ধর্ম", status: "none"},
-                {id: 8, name: "৮. পর্যায়বৃত্ত গতি", status: "none"},
-                {id: 9, name: "৯. তরঙ্গ", status: "none"},
-                {id: 10, name: "১০. আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব", status: "none"}
+                {id: 1, name: "১. ভৌতজগৎ ও পরিমাপ", status: "none"}, {id: 2, name: "২. ভেক্টর", status: "none"},
+                {id: 3, name: "৩. গতিবিদ্যা", status: "none"}, {id: 4, name: "৪. নিউটনীয় বলবিদ্যা", status: "none"},
+                {id: 5, name: "৫. কাজ, শক্তি ও ক্ষমতা", status: "none"}, {id: 6, name: "৬. মহাকর্ষ ও অভিকর্ষ", status: "none"},
+                {id: 7, name: "৭. পদার্থের গাঠনিক ধর্ম", status: "none"}, {id: 8, name: "৮. পর্যায়বৃত্ত গতি", status: "none"},
+                {id: 9, name: "৯. তরঙ্গ", status: "none"}, {id: 10, name: "১০. আদর্শ গ্যাস ও গতিতত্ত্ব", status: "none"}
             ],
             Physics2: [
-                {id: 1, name: "১. তাপগতিবিদ্যা", status: "none"},
-                {id: 2, name: "২. স্থির তড়িৎ", status: "none"},
-                {id: 3, name: "৩. চল তড়িৎ", status: "none"},
-                {id: 4, name: "৪. তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চৌম্বকত্ব", status: "none"},
-                {id: 5, name: "৫. তাড়িতচৌম্বকীয় আবেশ ও পরিবর্তী প্রবাহ", status: "none"},
-                {id: 6, name: "৬. জ্যামিতিক আলোকবিজ্ঞান", status: "none"},
-                {id: 7, name: "৭. ভৌত আলোকবিজ্ঞান", status: "none"},
-                {id: 8, name: "৮. আধুনিক পদার্থবিজ্ঞানের সূচনা", status: "none"},
-                {id: 9, name: "৯. পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান", status: "none"},
-                {id: 10, name: "১০. সেমিকন্ডাক্টর ও ইলেকট্রনিক্স", status: "none"},
-                {id: 11, name: "১১. জ্যোতির্বিজ্ঞান", status: "none"}
+                {id: 1, name: "১. তাপগতিবিদ্যা", status: "none"}, {id: 2, name: "২. স্থির তড়িৎ", status: "none"},
+                {id: 3, name: "৩. চল তড়িৎ", status: "none"}, {id: 4, name: "৪. তড়িৎ প্রবাহের চৌম্বক ক্রিয়া", status: "none"},
+                {id: 5, name: "৫. তাড়িতচৌম্বকীয় আবেশ", status: "none"}, {id: 6, name: "৬. জ্যামিতিক আলোকবিজ্ঞান", status: "none"},
+                {id: 7, name: "৭. ভৌত আলোকবিজ্ঞান", status: "none"}, {id: 8, name: "৮. আধুনিক পদার্থবিজ্ঞান", status: "none"},
+                {id: 9, name: "৯. পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান", status: "none"}, {id: 10, name: "১০. সেমিকন্ডাক্টর ও ইলেকট্রনিক্স", status: "none"}
             ],
             Chemistry1: [
-                {id: 1, name: "১. ল্যাবরেটরির নিরাপদ ব্যবহার", status: "none"},
-                {id: 2, name: "২. গুণগত রসায়ন", status: "none"},
-                {id: 3, name: "৩. মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন", status: "none"},
-                {id: 4, name: "৪. রাসায়নিক পরিবর্তন", status: "none"},
+                {id: 1, name: "১. ল্যাবরেটরির নিরাপদ ব্যবহার", status: "none"}, {id: 2, name: "২. গুণগত রসায়ন", status: "none"},
+                {id: 3, name: "৩. মৌলের পর্যায়বৃত্ত ধর্ম", status: "none"}, {id: 4, name: "৪. রাসায়নিক পরিবর্তন", status: "none"},
                 {id: 5, name: "৫. কর্মমুখী রসায়ন", status: "none"}
             ],
             Chemistry2: [
-                {id: 1, name: "১. পরিবেশ রসায়ন", status: "none"},
-                {id: 2, name: "২. জৈব রসায়ন", status: "none"},
-                {id: 3, name: "৩. পরিমাণগত রসায়ন", status: "none"},
-                {id: 4, name: "৪. তড়িৎ রসায়ন", status: "none"},
+                {id: 1, name: "১. পরিবেশ রসায়ন", status: "none"}, {id: 2, name: "২. জৈব রসায়ন", status: "none"},
+                {id: 3, name: "৩. পরিমাণগত রসায়ন", status: "none"}, {id: 4, name: "৪. তড়িৎ রসায়ন", status: "none"},
                 {id: 5, name: "৫. অর্থনৈতিক রসায়ন", status: "none"}
             ],
             HigherMath1: [
-                {id: 1, name: "১. ম্যাট্রিক্স ও নির্ণায়ক", status: "none"},
-                {id: 2, name: "২. ভেক্টর", status: "none"},
-                {id: 3, name: "৩. সরলরেখা", status: "none"},
-                {id: 4, name: "৪. বৃত্ত", status: "none"},
-                {id: 5, name: "৫. বিন্যাস ও সমাবেশ", status: "none"},
-                {id: 6, name: "৬. ত্রিকোণমিতিক অনুপাত", status: "none"},
-                {id: 7, name: "৭.সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত", status: "none"},
-                {id: 8, name: "৮. ফাংশন ও ফাংশনের লেখচিত্র", status: "none"},
-                {id: 9, name: "৯. অন্তরীকরণ (Differentiation)", status: "none"},
-                {id: 10, name: "১০. যোগজীকরণ (Integration)", status: "none"}
+                {id: 1, name: "১. ম্যাট্রিক্স ও নির্ণায়ক", status: "none"}, {id: 2, name: "২. ভেক্টর", status: "none"},
+                {id: 3, name: "৩. সরলরেখা", status: "none"}, {id: 4, name: "৪. বৃত্ত", status: "none"},
+                {id: 5, name: "৫. বিন্যাস ও সমাবেশ", status: "none"}, {id: 6, name: "৬. ত্রিকোণমিতিক অনুপাত", status: "none"},
+                {id: 7, name: "৭. সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত", status: "none"}, {id: 9, name: "৯. অন্তরীকরণ", status: "none"},
+                {id: 10, name: "১০. যোগজীকরণ", status: "none"}
             ],
             HigherMath2: [
-                {id: 1, name: "১. বাস্তব সংখ্যা ও অসমতা", status: "none"},
-                {id: 2, name: "২. রৈখিক প্রোগ্রামন", status: "none"},
-                {id: 3, name: "৩. জটিল সংখ্যা", status: "none"},
-                {id: 4, name: "৪. বহুপদী ও বহুপদী সমীকরণ", status: "none"},
-                {id: 5, name: "৫. দ্বিপদী বিস্তৃতি", status: "none"},
-                {id: 6, name: "৬. কনিক", status: "none"},
-                {id: 7, name: "৭. বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ", status: "none"},
-                {id: 8, name: "৮. স্থিতিবিদ্যা (Statics)", status: "none"},
-                {id: 9, name: "৯. সমতলে বস্তুকণার গতি (Dynamics)", status: "none"},
-                {id: 10, name: "১০. সম্ভাবনা (Probability)", status: "none"}
+                {id: 1, name: "১. বাস্তব সংখ্যা ও অসমতা", status: "none"}, {id: 3, name: "৩. জটিল সংখ্যা", status: "none"},
+                {id: 4, name: "৪. বহুপদী ও বহুপদী সমীকরণ", status: "none"}, {id: 5, name: "৫. দ্বিপদী বিস্তৃতি", status: "none"},
+                {id: 6, name: "৬. কনিক", status: "none"}, {id: 7, name: "৭. বিপরীত ত্রিকোণমিতিক ফাংশন", status: "none"},
+                {id: 8, name: "৮. স্থিতিবিদ্যা", status: "none"}, {id: 9, name: "৯. সমতলে বস্তুকণার গতি", status: "none"}
             ],
             Biology1: [
-                {id: 1, name: "১. কোষ ও এর গঠন", status: "none"},
-                {id: 2, name: "২. কোষ বিভাজন", status: "none"},
-                {id: 3, name: "৩. কোষ রসায়ন", status: "none"},
-                {id: 4, name: "৪. অনুজীব", status: "none"},
-                {id: 5, name: "৫. শৈবাল ও ছত্রাক", status: "none"},
-                {id: 6, name: "৬. ব্রায়োফাইটা ও টেরিডোফাইটা", status: "none"},
-                {id: 7, name: "৭. নগ্নবীজী ও আবৃতবীজী উদ্ভিদ", status: "none"},
-                {id: 8, name: "৮. টিস্যু ও টিস্যুতন্ত্র", status: "none"},
-                {id: 9, name: "৯. উদ্ভিদ শারীরতত্ত্ব", status: "none"},
-                {id: 10, name: "১০. উদ্ভিদ প্রজনন", status: "none"},
-                {id: 11, name: "১১. জীবপ্রযুক্তি", status: "none"},
-                {id: 12, name: "১২. জীবের পরিবেশ, বিস্তার ও সংরক্ষণ", status: "none"}
+                {id: 1, name: "১. কোষ ও এর গঠন", status: "none"}, {id: 2, name: "২. কোষ বিভাজন", status: "none"},
+                {id: 3, name: "৩. কোষ রসায়ন", status: "none"}, {id: 4, name: "৪. অনুজীব", status: "none"},
+                {id: 7, name: "৭. আবৃতবীজী উদ্ভিদ", status: "none"}, {id: 8, name: "৮. টিস্যু ও টিস্যুতন্ত্র", status: "none"},
+                {id: 9, name: "৯. উদ্ভিদ শারীরতত্ত্ব", status: "none"}, {id: 11, name: "১১. জীবপ্রযুক্তি", status: "none"}
             ],
             Biology2: [
-                {id: 1, name: "১. প্রাণীর বিভিন্নতা ও শ্রেণীবিন্যাস", status: "none"},
-                {id: 2, name: "২. প্রাণীর পরিচিতি (হাইড্রা, রুই মাছ, ঘাসফড়িং)", status: "none"},
-                {id: 3, name: "৩. মানব শারীরতত্ত্ব: পরিপাক ও শোষণ", status: "none"},
-                {id: 4, name: "৪. মানব শারীরতত্ত্ব: রক্ত ও সংবহন", status: "none"},
-                {id: 5, name: "৫. মানব শারীরতত্ত্ব: শ্বাসক্রিয়া ও শ্বসন", status: "none"},
-                {id: 6, name: "৬. মানব শারীরতত্ত্ব: বর্জ্য ও নিষ্কাশন", status: "none"},
-                {id: 7, name: "৭. মানব শারীরতত্ত্ব: চলন ও অঙ্গচালনা", status: "none"},
-                {id: 8, name: "৮. মানব শারীরতত্ত্ব: সমন্বয় ও নিয়ন্ত্রণ", status: "none"},
-                {id: 9, name: "৯. মানব জীবনের ধারাবাহিকতা", status: "none"},
-                {id: 10, name: "১০. মানবদেহের প্রতিরক্ষা (Immunity)", status: "none"},
-                {id: 11, name: "১১. জিনতত্ত্ব ও বিবর্তন", status: "none"},
-                {id: 12, name: "১২. প্রাণীর আচরণ", status: "none"}
+                {id: 1, name: "১. প্রাণীর শ্রেণীবিন্যাস", status: "none"}, {id: 2, name: "২. প্রাণীর পরিচিতি (হাইড্রা, ঘাসফড়িং, রুই মাছ)", status: "none"},
+                {id: 3, name: "৩. পরিপাক ও শোষণ", status: "none"}, {id: 4, name: "৪. রক্ত ও সংবহন", status: "none"},
+                {id: 5, name: "৫. শ্বাসক্রিয়া ও শ্বসন", status: "none"}, {id: 7, name: "৭. চলন ও অঙ্গচালনা", status: "none"},
+                {id: 11, name: "১১. জিনতত্ত্ব ও বিবর্তন", status: "none"}
             ]
         };
 
         // App State Management
-        let appState = JSON.parse(localStorage.getItem('studyVerseHSCState')) || {
+        let appState = JSON.parse(localStorage.getItem('studyVerseUltimateState')) || {
             xp: 0,
             streak: 1,
             examDate: null,
+            theme: 'slate',
             goals: [],
             notes: [],
+            flashcards: [],
+            customSubjects: {},
             chapters: hscSyllabus,
             weeklyData: [30, 45, 60, 20, 90, 50, 0]
         };
 
         function saveState() {
-            localStorage.setItem('studyVerseHSCState', JSON.stringify(appState));
+            localStorage.setItem('studyVerseUltimateState', JSON.stringify(appState));
             updateHeader();
             updateRecommendation();
         }
@@ -323,7 +371,7 @@
             saveState();
         }
 
-        // Tab Navigation
+        // Tab Switcher
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => {
@@ -332,12 +380,28 @@
             });
 
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabName}`).classList.add('text-indigo-400');
-            document.getElementById(`nav-${tabName}`).classList.remove('text-slate-400');
+            if (document.getElementById(`nav-${tabName}`)) {
+                document.getElementById(`nav-${tabName}`).classList.add('text-indigo-400');
+                document.getElementById(`nav-${tabName}`).classList.remove('text-slate-400');
+            }
 
-            if (tabName === 'tracker') renderChapters();
+            if (tabName === 'tracker') { renderCustomSubjectOptions(); renderChapters(); }
             if (tabName === 'notes') renderNotes();
+            if (tabName === 'flashcards') renderFlashcards();
             if (tabName === 'analytics') { renderChart(); renderBadges(); }
+        }
+
+        // Theme Customizer
+        function setTheme(theme) {
+            appState.theme = theme;
+            const body = document.getElementById('app-body');
+            body.className = body.className.replace(/bg-\S+/g, '');
+
+            if (theme === 'slate') body.classList.add('bg-slate-900');
+            if (theme === 'midnight') body.classList.add('bg-blue-950');
+            if (theme === 'zinc') body.classList.add('bg-zinc-900');
+
+            saveState();
         }
 
         // Goals Logic
@@ -377,14 +441,51 @@
             document.getElementById('goal-progress-bar').style.width = `${percent}%`;
         }
 
-        // HSC Chapter Tracker Logic
+        // Custom Subject & Chapter System
+        function addCustomSubjectPrompt() {
+            const subName = prompt("নতুন বিষয়ের নাম লিখুন (e.g. ICT, English 1st):");
+            if (subName) {
+                const key = 'custom_' + Date.now();
+                appState.customSubjects[key] = subName;
+                appState.chapters[key] = [];
+                saveState();
+                renderCustomSubjectOptions();
+                document.getElementById('subject-select').value = key;
+                renderChapters();
+            }
+        }
+
+        function addCustomChapterPrompt() {
+            const subject = document.getElementById('subject-select').value;
+            const chName = prompt("অধ্যায়ের নাম লিখুন:");
+            if (chName) {
+                if (!appState.chapters[subject]) appState.chapters[subject] = [];
+                appState.chapters[subject].push({ id: Date.now(), name: chName, status: "none" });
+                saveState();
+                renderChapters();
+            }
+        }
+
+        function renderCustomSubjectOptions() {
+            const optgroup = document.getElementById('custom-subject-options');
+            optgroup.innerHTML = '';
+            for (let key in appState.customSubjects) {
+                optgroup.innerHTML += `<option value="${key}">${appState.customSubjects[key]}</option>`;
+            }
+        }
+
         function renderChapters() {
             const subject = document.getElementById('subject-select').value;
             const container = document.getElementById('chapter-list');
             container.innerHTML = '';
 
             if (!appState.chapters[subject]) {
-                appState.chapters[subject] = hscSyllabus[subject];
+                appState.chapters[subject] = hscSyllabus[subject] || [];
+            }
+
+            if (appState.chapters[subject].length === 0) {
+                container.innerHTML = `<p class="text-xs text-center text-slate-500 py-4">এই বিষয়ের কোনো অধ্যায় যোগ করা হয়নি।</p>`;
+                return;
             }
 
             appState.chapters[subject].forEach(ch => {
@@ -411,47 +512,27 @@
             }
         }
 
-        // Notes System Logic
+        // Notes System
         function saveNote() {
             const title = document.getElementById('note-title').value.trim();
             const content = document.getElementById('note-content').value.trim();
-
-            if (!title || !content) {
-                alert("শিরোনাম এবং নোটের বিবরণ লিখুন!");
-                return;
-            }
+            if (!title || !content) return alert("শিরোনাম এবং বিশদ লিখুন!");
 
             appState.notes.unshift({ id: Date.now(), title, content, date: new Date().toLocaleDateString('bn-BD') });
             addXP(10);
-            
             document.getElementById('note-title').value = '';
             document.getElementById('note-content').value = '';
-            
-            saveState();
-            renderNotes();
-        }
-
-        function deleteNote(id) {
-            appState.notes = appState.notes.filter(n => n.id !== id);
             saveState();
             renderNotes();
         }
 
         function renderNotes() {
             const container = document.getElementById('notes-container');
-            container.innerHTML = '';
-
-            if (appState.notes.length === 0) {
-                container.innerHTML = `<p class="text-xs text-center text-slate-500 py-4">এখনো কোনো নোট সেভ করা হয়নি।</p>`;
-                return;
-            }
-
+            container.innerHTML = appState.notes.length ? '' : `<p class="text-xs text-center text-slate-500 py-4">কোনো নোট সেভ করা হয়নি।</p>`;
             appState.notes.forEach(note => {
                 container.innerHTML += `
                     <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 relative">
-                        <button onclick="deleteNote(${note.id})" class="absolute top-3 right-3 text-slate-500 hover:text-rose-400 text-xs">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                        <button onclick="deleteNote(${note.id})" class="absolute top-3 right-3 text-slate-500 hover:text-rose-400 text-xs"><i class="fa-solid fa-trash"></i></button>
                         <h3 class="text-xs font-bold text-amber-400 mb-1">${note.title}</h3>
                         <p class="text-xs text-slate-300 whitespace-pre-line leading-relaxed mb-2">${note.content}</p>
                         <span class="text-[9px] text-slate-500">${note.date}</span>
@@ -460,24 +541,89 @@
             });
         }
 
-        // Smart Recommendation Engine
-        function updateRecommendation() {
-            let weakChapters = [];
-            for (let sub in appState.chapters) {
-                appState.chapters[sub].forEach(ch => {
-                    if (ch.status === 'weak') weakChapters.push(`${ch.name}`);
-                });
-            }
-
-            const recBox = document.getElementById('recommendation-text');
-            if (weakChapters.length > 0) {
-                recBox.innerHTML = `আপনার <strong>${weakChapters[0]}</strong> অধ্যায়টি দুর্বল হিসেবে চিহ্নিত আছে। আজ এটি রিভিশন দিন!`;
-            } else {
-                recBox.innerHTML = `সবকিছু ঠিকঠাক চলছে! সিলেবাসের অধ্যায়গুলো রিভিশন দিন ও গোল সেট করুন।`;
-            }
+        function deleteNote(id) {
+            appState.notes = appState.notes.filter(n => n.id !== id);
+            saveState();
+            renderNotes();
         }
 
-        // Timer Logic
+        // Active Recall Flashcards
+        function saveFlashcard() {
+            const front = document.getElementById('card-front').value.trim();
+            const back = document.getElementById('card-back').value.trim();
+            if (!front || !back) return alert("সামনের এবং পেছনের টেক্সট লিখুন!");
+
+            appState.flashcards.unshift({ id: Date.now(), front, back });
+            addXP(10);
+            document.getElementById('card-front').value = '';
+            document.getElementById('card-back').value = '';
+            saveState();
+            renderFlashcards();
+        }
+
+        function renderFlashcards() {
+            const container = document.getElementById('flashcard-container');
+            container.innerHTML = appState.flashcards.length ? '' : `<p class="text-xs text-center text-slate-500 py-4">কোনো ফ্ল্যাশকার্ড তৈরি করা হয়নি।</p>`;
+            
+            appState.flashcards.forEach(card => {
+                container.innerHTML += `
+                    <div onclick="flipCard(this)" class="perspective-1000 cursor-pointer h-28">
+                        <div class="card-inner relative w-full h-full duration-500 transform-style-3d bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-center text-center shadow-lg">
+                            <div class="absolute backface-hidden font-bold text-xs text-indigo-300">
+                                <span class="text-[9px] text-slate-500 block mb-1">FRONT (Click to Flip)</span>
+                                ${card.front}
+                            </div>
+                            <div class="absolute backface-hidden rotate-y-180 font-bold text-xs text-emerald-300">
+                                <span class="text-[9px] text-slate-500 block mb-1">BACK</span>
+                                ${card.back}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function flipCard(wrapper) {
+            wrapper.querySelector('.card-inner').classList.toggle('rotate-y-180');
+        }
+
+        // Audio & Ambient Focus Sounds
+        let audioCtx = null;
+        let noiseNode = null;
+
+        function changeAmbientSound() {
+            const sound = document.getElementById('ambient-select').value;
+            stopAmbientSound();
+
+            if (sound === 'none') return;
+
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer;
+            noiseNode.loop = true;
+
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.05; // Low soothing volume
+
+            noiseNode.connect(gain);
+            gain.connect(audioCtx.destination);
+            noiseNode.start();
+        }
+
+        function stopAmbientSound() {
+            if (noiseNode) { noiseNode.stop(); noiseNode = null; }
+            if (audioCtx) { audioCtx.close(); audioCtx = null; }
+        }
+
+        // Pomodoro Timer Logic
         let timerInterval = null;
         let timeLeft = 25 * 60;
         let isRunning = false;
@@ -495,6 +641,7 @@
                         updateTimerDisplay();
                     } else {
                         clearInterval(timerInterval);
+                        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                         alert('Pomodoro completed! +50 XP gained.');
                         addXP(50);
                         resetTimer();
@@ -511,9 +658,8 @@
             isRunning = false;
             timeLeft = 25 * 60;
             updateTimerDisplay();
-            const btn = document.getElementById('start-btn');
-            btn.innerText = 'Start';
-            btn.classList.replace('bg-rose-600', 'bg-indigo-600');
+            document.getElementById('start-btn').innerText = 'Start';
+            document.getElementById('start-btn').classList.replace('bg-rose-600', 'bg-indigo-600');
         }
 
         function updateTimerDisplay() {
@@ -522,14 +668,50 @@
             document.getElementById('timer-display').innerText = `${mins}:${secs}`;
         }
 
-        // Countdown Logic
+        // Export / Import Data
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `studyverse_backup_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    appState = JSON.parse(e.target.result);
+                    saveState();
+                    alert("ডাটা সফলভাবে ব্যাকআপ থেকে রিস্টোর হয়েছে!");
+                    location.reload();
+                } catch(err) {
+                    alert("অকার্যকর ব্যাকআপ ফাইল!");
+                }
+            };
+            reader.readAsText(event.target.files[0]);
+        }
+
+        // Recommendation Engine & Countdown
+        function updateRecommendation() {
+            let weakChapters = [];
+            for (let sub in appState.chapters) {
+                appState.chapters[sub].forEach(ch => {
+                    if (ch.status === 'weak') weakChapters.push(`${ch.name}`);
+                });
+            }
+
+            const recBox = document.getElementById('recommendation-text');
+            recBox.innerHTML = weakChapters.length > 0 
+                ? `আপনার <strong>${weakChapters[0]}</strong> অধ্যায়টি দুর্বল হিসেবে চিহ্নিত আছে। আজ এটি রিভিশন দিন!` 
+                : `সবকিছু ঠিকঠাক চলছে! সিলেবাসের অধ্যায়গুলো রিভিশন দিন ও গোল সেট করুন।`;
+        }
+
         function setExamDate() {
             const input = prompt("পরীক্ষার তারিখ দিন (YYYY-MM-DD):", "2026-06-30");
-            if (input) {
-                appState.examDate = input;
-                saveState();
-                updateCountdown();
-            }
+            if (input) { appState.examDate = input; saveState(); updateCountdown(); }
         }
 
         function updateCountdown() {
@@ -539,13 +721,12 @@
             document.getElementById('countdown-days').innerText = days > 0 ? days : '0';
         }
 
-        // Render Badges
         function renderBadges() {
             const grid = document.getElementById('badge-grid');
             const badges = [
                 { name: "Novice Scholar", desc: "Reach Level 1", icon: "fa-graduation-cap", unlocked: appState.xp >= 0 },
-                { name: "Pomodoro King", desc: "Complete 1 session", icon: "fa-stopwatch", unlocked: appState.xp >= 50 },
-                { name: "Note Taker", desc: "Save a study note", icon: "fa-pen-to-square", unlocked: appState.notes.length > 0 },
+                { name: "Pomodoro Master", desc: "Complete 1 session", icon: "fa-stopwatch", unlocked: appState.xp >= 50 },
+                { name: "Flashcard Creator", desc: "Create a card", icon: "fa-clone", unlocked: appState.flashcards.length > 0 },
                 { name: "HSC Warrior", desc: "Reach Level 5", icon: "fa-shield-halved", unlocked: appState.xp >= 400 }
             ];
 
@@ -558,7 +739,6 @@
             `).join('');
         }
 
-        // Chart.js Rendering
         let chartInstance = null;
         function renderChart() {
             const ctx = document.getElementById('weeklyChart').getContext('2d');
@@ -568,24 +748,17 @@
                 type: 'bar',
                 data: {
                     labels: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-                    datasets: [{
-                        label: 'Minutes',
-                        data: appState.weeklyData,
-                        backgroundColor: '#6366f1',
-                        borderRadius: 8
-                    }]
+                    datasets: [{ label: 'Minutes', data: appState.weeklyData, backgroundColor: '#6366f1', borderRadius: 8 }]
                 },
                 options: {
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#334155' } },
-                        x: { grid: { display: false } }
-                    },
+                    scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } },
                     plugins: { legend: { display: false } }
                 }
             });
         }
 
         // Initialize App
+        setTheme(appState.theme || 'slate');
         saveState();
         renderGoals();
         updateCountdown();
