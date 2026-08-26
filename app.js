@@ -17,4 +17,23 @@ function renderHome(){$("#cards").innerHTML=cards();$("#profiles").innerHTML=D.p
 function renderStats(){$("#statsCards").innerHTML=cards();let g={};D.messages.forEach(m=>g[m.src]=(g[m.src]||0)+1);$("#sources").innerHTML=Object.entries(g).map(([s,n])=>`<div class="sourceRow">📱 ${esc(s)}<b>${n}</b></div>`).join("")||"No sources yet."}
 function renderAll(){renderHome();renderChat();renderFav();flash();renderStats()}
 $("#date").onchange=e=>{selDate=e.target.value;renderChat()};function clearFilters(){selDate="";$("#date").value="";$("#search").value="";$("#person").value="all";$("#source").value="all";renderChat()}function move(n){let d;if(selDate)d=new Date(selDate+"T12:00:00");else{let a=[...new Set(D.messages.map(m=>m.date))].sort();selDate=a[n>0?0:a.length-1]||"";return renderChat()}d.setDate(d.getDate()+n);selDate=d.toISOString().slice(0,10);renderChat()}
-function backup(){let b=new Blob([JSON.stringify(D,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="Our-Forever-Archive-Backup.json";a.click()}function restorePick(){$("#restore").click()}$("#restore").onchange=e=>{let f=e.target.files[0],r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.profiles||!x.messages)throw 0;D=x;save();renderAll();alert("Backup restored ❤️")}catch{alert("Invalid backup.")}};r.readAsText(f)}function clearAll(){if(confirm("Delete all local archive data?")){D={profiles:[],messages:[]};save();renderAll()}}
+function backup(){
+  const b=new Blob([JSON.stringify(D,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="Our-Forever-Archive-Backup.json"; a.click();
+}
+function restorePick(){ $("#restore").click(); }
+$("#restore").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try {
+      const x=JSON.parse(r.result);
+      if(!x.profiles || !x.messages) throw new Error("Invalid");
+      D=x; save(); renderAll(); alert("Backup restored ❤️");
+    } catch(err) { alert("Invalid backup."); }
+  };
+  r.readAsText(f);
+};
+function clearAll(){
+  if(confirm("Delete all local archive data?")){ D={profiles:[],messages:[]}; save(); renderAll(); }
+}
