@@ -1,15 +1,8 @@
-# Our Forever Archive ❤️
+# Our Forever Archive 2.0 ❤️
+Features: multiple people, multiple WhatsApp numbers/sources, smart duplicate detection, combined timeline, exact date search, previous/next day navigation, keyword search, favourites, flashbacks, statistics, backup and restore.
 
-A private memory archive for preserving exported WhatsApp conversations.
+## Use
+Export a WhatsApp chat as a .txt file, preferably without media, then import it into the chosen profile and source label.
 
-## How to use
-1. Open `index.html` locally or upload all files to a GitHub repository and enable GitHub Pages.
-2. Choose a private password.
-3. In WhatsApp open the chat you want to preserve.
-4. Tap the menu → More → Export chat → choose **Without media**.
-5. Upload the exported `.txt` file.
-
-## Important privacy note
-This first version stores imported messages in the browser's local storage. Use **Backup Archive** regularly. For multi-device syncing and stronger persistence, the next version can add Firebase Authentication + Firestore/Storage.
-
-Never upload private chats to a public GitHub repository.
+## Privacy
+This static version stores imported data in the browser's local storage. Do not upload chat exports or backup files to a public GitHub repository. Export backups regularly.
