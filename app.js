@@ -1,69 +1,20 @@
-const STORAGE='foreverArchiveMessagesV1';
-const PASS='ourMemoryArchivePasswordV1';
-let messages=JSON.parse(localStorage.getItem(STORAGE)||'[]');
-let currentView='chat', currentDate='all';
-
-const $=s=>document.querySelector(s);
-const save=()=>localStorage.setItem(STORAGE,JSON.stringify(messages));
-
-function unlock(){
-  const saved=localStorage.getItem(PASS);
-  const input=$('#passwordInput').value.trim();
-  if(!saved){
-    if(!input){$('#lockError').textContent='Choose a password first.';return;}
-    localStorage.setItem(PASS,input);
-  } else if(input!==saved){$('#lockError').textContent='That password is not correct.';return;}
-  $('#lockScreen').classList.add('hidden');$('#app').classList.remove('hidden');render();
-}
-$('#unlockBtn').onclick=unlock;
-$('#passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
-
-$('#importBtn').onclick=()=>$('#fileInput').click();
-$('#fileInput').onchange=e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=()=>importChat(r.result);r.readAsText(f);}};
-function importChat(text){
-  const lines=text.split(/\r?\n/);
-  const patterns=[
-    /^(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?)\s+-\s+([^:]+):\s?(.*)$/i,
-    /^\[(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?)\]\s+([^:]+):\s?(.*)$/i
-  ];
-  let added=0,last=null;
-  for(const line of lines){
-    let m=null; for(const p of patterns){m=line.match(p);if(m)break;}
-    if(m){last={id:Date.now()+Math.random(),date:m[1],time:m[2],sender:m[3].trim(),text:m[4],favorite:false};messages.push(last);added++;}
-    else if(last && line.trim()) last.text+='\n'+line;
-  }
-  save(); alert(added?`${added} messages imported ❤️`:'Could not recognize this export format. Make sure it is a WhatsApp .txt export.');
-  render();
-}
-function filtered(){const q=$('#searchInput').value.toLowerCase();return messages.filter(m=>(currentDate==='all'||m.date===currentDate)&&(`${m.sender} ${m.text} ${m.date}`).toLowerCase().includes(q));}
-function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-function renderChat(){
-  const arr=filtered(), box=$('#messages'), dates=[...new Set(messages.map(m=>m.date))];
-  $('#emptyState').classList.toggle('hidden',messages.length>0);
-  $('#dateFilter').innerHTML=messages.length?`<button class="date-chip" data-date="all">All</button>`+dates.map(d=>`<button class="date-chip" data-date="${esc(d)}">${esc(d)}</button>`).join(''):'';
-  box.innerHTML=arr.map((m,i)=>`${i===0||arr[i-1].date!==m.date?`<div class="date-separator">📅 ${esc(m.date)}</div>`:''}<div class="message ${m.sender.toLowerCase().includes('me')?'me':''}"><button class="fav" data-id="${m.id}">${m.favorite?'⭐':'☆'}</button><div class="meta">${esc(m.sender)} • ${esc(m.time)}</div>${esc(m.text).replace(/\n/g,'<br>')}</div>`).join('');
-  document.querySelectorAll('.fav').forEach(b=>b.onclick=()=>{const m=messages.find(x=>x.id==b.dataset.id);m.favorite=!m.favorite;save();render();});
-  document.querySelectorAll('.date-chip').forEach(b=>b.onclick=()=>{currentDate=b.dataset.date;renderChat();});
-}
-function flashback(){
-  const box=$('#flashbackMessages'); if(!messages.length){box.innerHTML='<p>Import memories first 💌</p>';return;}
-  const dates=[...new Set(messages.map(m=>m.date))], d=dates[Math.floor(Math.random()*dates.length)];
-  const arr=messages.filter(m=>m.date===d).slice(0,12);
-  $('#flashbackTitle').textContent=`A memory from ${d} ❤️`;
-  box.innerHTML=arr.map(m=>`<div class="message"><div class="meta">${esc(m.sender)} • ${esc(m.time)}</div>${esc(m.text)}</div>`).join('');
-}
-function render(){
-  renderChat();
-  $('#favoritesList').innerHTML=messages.filter(m=>m.favorite).map(m=>`<div class="message"><div class="meta">${esc(m.date)} • ${esc(m.sender)}</div>${esc(m.text)}</div>`).join('')||'<div class="empty"><div>⭐</div><h3>No favorites yet</h3><p>Star your most special messages.</p></div>';
-  const senders=new Set(messages.map(m=>m.sender)).size;
-  const days=new Set(messages.map(m=>m.date)).size;
-  const chars=messages.reduce((a,m)=>a+m.text.length,0);
-  $('#statsGrid').innerHTML=[['💬 Total Messages',messages.length],['📅 Memory Days',days],['👥 People',senders],['✍️ Characters',chars.toLocaleString()]].map(x=>`<div class="stat">${x[0]}<strong>${x[1]}</strong></div>`).join('');
-  flashback();
-}
-$('.content').querySelectorAll('.nav');
-document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{currentView=b.dataset.view;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));$('#'+currentView+'View').classList.remove('hidden');$('#viewTitle').textContent=b.textContent.trim();});
-$('#searchInput').oninput=renderChat;
-$('#newFlashback').onclick=flashback;
-$('#exportBtn').onclick=()=>{const data=new Blob([JSON.stringify(messages,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(data);a.download='our-forever-archive-backup.json';a.click();};
-$('#clearBtn').onclick=()=>{if(confirm('Delete all locally stored imported memories? Your downloaded backup will not be affected.')){messages=[];save();render();}};
+const K="ofa2",P="ofa2pass";let D=JSON.parse(localStorage.getItem(K)||'{"profiles":[],"messages":[]}'),selDate="";const $=x=>document.querySelector(x),save=()=>localStorage.setItem(K,JSON.stringify(D)),id=()=>Date.now()+Math.random();function unlock(){let v=$("#pass").value.trim(),o=localStorage.getItem(P);if(!v)return $("#err").textContent="Enter a password.";if(!o)localStorage.setItem(P,v);else if(o!=v)return $("#err").textContent="Wrong password.";$("#lock").classList.add("hidden");$("#app").classList.remove("hidden");renderAll()}
+function view(x){document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));$("#"+x).classList.remove("hidden");renderAll()}
+function addProfile(){let n=prompt("Person name:");if(n){D.profiles.push({id:String(id()),name:n,sources:[]});save();renderAll()}}
+function chooseImport(){if(!D.profiles.length)return alert("First add a person profile.");let list=D.profiles.map((p,i)=>`${i+1}. ${p.name}`).join("\n"),n=+prompt("Choose profile number:\n"+list),p=D.profiles[n-1];if(!p)return;let s=prompt("Number/source label (example: Old Number):","WhatsApp Chat");$("#file").dataset.pid=p.id;$("#file").dataset.source=s||"WhatsApp Chat";$("#file").click()}
+$("#file").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>imp(r.result,e.target.dataset.pid,e.target.dataset.source);r.readAsText(f);e.target.value=""};
+function nd(s){let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);return m?`${m[3].length==2?"20"+m[3]:m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:""}
+function imp(t,pid,src){let p=D.profiles.find(x=>x.id==pid);if(!p.sources.includes(src))p.sources.push(src);let last=null,a=0;for(let l of t.split(/\r?\n/)){let m=l.match(/^(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?)\s+-\s+([^:]+):\s?(.*)$/i)||l.match(/^\[(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?)\]\s+([^:]+):\s?(.*)$/i);if(m){let x={id:id(),pid,src,date:nd(m[1]),time:m[2],sender:m[3].trim(),text:m[4],fav:false};if(!D.messages.some(y=>y.pid==pid&&y.src==src&&y.date==x.date&&y.time==x.time&&y.sender==x.sender&&y.text==x.text)){D.messages.push(x);a++;last=x}else last=null}else if(last&&l.trim())last.text+="\n"+l}D.messages.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));save();alert(a+" new messages imported. Duplicates skipped.");renderAll()}
+function esc(s){return String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function fill(){let pf=$("#person"),sf=$("#source"),pv=pf.value||"all",sv=sf.value||"all";pf.innerHTML='<option value="all">All People</option>'+D.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");pf.value=pv;let ps=pv=="all"?D.profiles:D.profiles.filter(p=>p.id==pv);sf.innerHTML='<option value="all">All Numbers / Sources</option>'+[...new Set(ps.flatMap(p=>p.sources))].map(s=>`<option>${esc(s)}</option>`).join("");if([...sf.options].some(o=>o.value==sv))sf.value=sv}
+function filtered(){let p=$("#person").value,s=$("#source").value,q=$("#search").value.toLowerCase();return D.messages.filter(m=>(p=="all"||m.pid==p)&&(s=="all"||m.src==s)&&(!selDate||m.date==selDate)&&(`${m.sender} ${m.text} ${m.src}`).toLowerCase().includes(q))}
+function renderChat(){fill();$("#date").value=selDate;$("#dayLabel").textContent=selDate||"All Memories";let a=filtered(),prev="",h="";for(let m of a){if(m.date!=prev){h+=`<div class="empty" style="padding:12px">📅 ${m.date}</div>`;prev=m.date}h+=`<div class="msg"><button class="star" onclick="fav('${m.id}')">${m.fav?"⭐":"☆"}</button><div class="meta">${esc(m.sender)} • ${esc(m.time)} <span class="tag">📱 ${esc(m.src)}</span></div>${esc(m.text).replace(/\n/g,"<br>")}</div>`}$("#messages").innerHTML=h||'<div class="empty">No matching memories 💌</div>'}
+function fav(i){let m=D.messages.find(x=>x.id==i);m.fav=!m.fav;save();renderAll()}
+function renderFav(){let a=D.messages.filter(m=>m.fav);$("#favList").innerHTML=a.length?a.map(m=>`<div class="msg"><button class="star" onclick="fav('${m.id}')">⭐</button><div class="meta">${m.date} • ${esc(m.sender)} • 📱 ${esc(m.src)}</div>${esc(m.text)}</div>`).join(""):'<div class="empty">No favourite memories yet ⭐</div>'}
+function flash(){if(!D.messages.length){$("#flashTitle").textContent="Import a chat first ❤️";$("#flashList").innerHTML="";return}let ds=[...new Set(D.messages.map(m=>m.date))],d=ds[Math.floor(Math.random()*ds.length)],a=D.messages.filter(m=>m.date==d).slice(0,15);$("#flashTitle").textContent="A memory from "+d+" ❤️";$("#flashList").innerHTML=a.map(m=>`<div class="msg"><div class="meta">${esc(m.sender)} • ${m.time} • ${esc(m.src)}</div>${esc(m.text)}</div>`).join("")}
+function cards(){let days=new Set(D.messages.map(m=>m.date)).size,src=new Set(D.messages.map(m=>m.src)).size,f=D.messages.filter(m=>m.fav).length;return [["💬 Total Messages",D.messages.length],["📅 Memory Days",days],["📱 Chat Sources",src],["⭐ Favorites",f]].map(x=>`<div class="card">${x[0]}<div class="num">${x[1]}</div></div>`).join("")}
+function renderHome(){$("#cards").innerHTML=cards();$("#profiles").innerHTML=D.profiles.map(p=>`<div class="profile"><span>❤️ ${esc(p.name)}<br><small>${p.sources.length} sources</small></span><b>${D.messages.filter(m=>m.pid==p.id).length} messages</b></div>`).join("")||"No profile yet.";let n=new Date(),md=String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0"),a=D.messages.filter(m=>m.date.slice(5)==md).slice(0,5);$("#today").innerHTML=a.length?a.map(m=>`<div class="msg">${esc(m.text)}</div>`).join(""):"No memory from this calendar day yet."}
+function renderStats(){$("#statsCards").innerHTML=cards();let g={};D.messages.forEach(m=>g[m.src]=(g[m.src]||0)+1);$("#sources").innerHTML=Object.entries(g).map(([s,n])=>`<div class="sourceRow">📱 ${esc(s)}<b>${n}</b></div>`).join("")||"No sources yet."}
+function renderAll(){renderHome();renderChat();renderFav();flash();renderStats()}
+$("#date").onchange=e=>{selDate=e.target.value;renderChat()};function clearFilters(){selDate="";$("#date").value="";$("#search").value="";$("#person").value="all";$("#source").value="all";renderChat()}function move(n){let d;if(selDate)d=new Date(selDate+"T12:00:00");else{let a=[...new Set(D.messages.map(m=>m.date))].sort();selDate=a[n>0?0:a.length-1]||"";return renderChat()}d.setDate(d.getDate()+n);selDate=d.toISOString().slice(0,10);renderChat()}
+function backup(){let b=new Blob([JSON.stringify(D,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="Our-Forever-Archive-Backup.json";a.click()}function restorePick(){$("#restore").click()}$("#restore").onchange=e=>{let f=e.target.files[0],r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.profiles||!x.messages)throw 0;D=x;save();renderAll();alert("Backup restored ❤️")}catch{alert("Invalid backup.")}};r.readAsText(f)}function clearAll(){if(confirm("Delete all local archive data?")){D={profiles:[],messages:[]};save();renderAll()}}
