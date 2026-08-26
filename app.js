@@ -1,17 +1,69 @@
-const initial=[['Physics','Vectors',42],['Physics','Newtonian Mechanics',68],['Physics','Work, Energy & Power',81],['Chemistry','Mole Concept',75],['Chemistry','Chemical Bonding',39],['Higher Math','Matrices',88],['Higher Math','Straight Line',31],['Biology','Cell Division',72],['ICT','Programming Basics',36]];
-let data=JSON.parse(localStorage.studyverse2||'null')||{chapters:initial.map((x,i)=>({id:i,subject:x[0],name:x[1],strength:x[2]})),focus:0,streak:0};
-const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);function save(){localStorage.studyverse2=JSON.stringify(data)}
-function dashboard(){let a=Math.round(data.chapters.reduce((s,c)=>s+c.strength,0)/data.chapters.length),m=data.chapters.filter(c=>c.strength>=80).length,w=[...data.chapters].sort((a,b)=>a.strength-b.strength).slice(0,4);$('#mastered').textContent=m;$('#average').textContent=a+'%';$('#focus').textContent=data.focus;$('#streak').textContent=data.streak+' 🔥';$('#level').textContent=String(Math.max(1,Math.floor(a/10))).padStart(2,'0');$('#weakList').innerHTML=w.map(c=>`<div class="item"><b>${c.subject} — ${c.name}</b><span>${c.strength}% confidence</span></div>`).join('');$('#mission').innerHTML=w.slice(0,3).map((c,i)=>`<div class="item"><b>${i+1}. ${c.name}</b><span>Raise confidence by 15%</span></div>`).join('')}
-function radar(){ $('#chapters').innerHTML=data.chapters.map(c=>`<div class="card chapter"><div><b>${c.name}</b><small>${c.subject}</small></div><input type="range" min="0" max="100" value="${c.strength}" data-id="${c.id}"><b>${c.strength}%</b></div>`).join('');$$('#chapters input').forEach(x=>x.oninput=()=>{let c=data.chapters.find(z=>z.id==x.dataset.id);c.strength=+x.value;x.nextElementSibling.textContent=x.value+'%';save();dashboard()})}
-const questions=[['Acceleration when velocity changes 10 to 20 m/s in 5 seconds?',['2 m/s²','5 m/s²','10 m/s²'],0],['One mole contains approximately?',['6.02×10²³','3×10⁸','9.8×10²'],0],['Binary 1010 equals?',['8','10','12'],1]];let qi=0,score=0;
-function quiz(){if(qi>=questions.length){let p=Math.round(score/questions.length*100);$('#quizBox').innerHTML=`<h2>Diagnostic Complete</h2><div class="clock">${p}%</div><p>${p>=70?'Strong foundation!':'Clear gaps found. Focus on weak chapters.'}</p><button class="primary" onclick="qi=0;score=0;quiz()">Retake</button>`;return}let q=questions[qi];$('#quizBox').innerHTML=`<small>QUESTION ${qi+1}/${questions.length}</small><h2>${q[0]}</h2>${q[1].map((a,i)=>`<button class="answer" onclick="answer(${i})">${a}</button>`).join('')}`}
-function answer(i){if(i===questions[qi][2])score++;qi++;quiz()}
-function show(id){$$('.page').forEach(p=>p.classList.remove('active'));$('#'+id).classList.add('active');$$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));$('#title').textContent={dashboard:'Dashboard',radar:'Chapter Radar',quiz:'GapFinder',timer:'Focus Timer',planner:'Exam Planner'}[id];if(id==='dashboard')dashboard();if(id==='radar')radar();if(id==='quiz')quiz()}
-$$('.nav').forEach(b=>b.onclick=()=>show(b.dataset.page));$$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
-let seconds=1500,selected=25,interval=null;function display(){let m=Math.floor(seconds/60),s=seconds%60;$('#clock').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
-$$('.preset').forEach(b=>b.onclick=()=>{$$('.preset').forEach(x=>x.classList.remove('active'));b.classList.add('active');selected=+b.dataset.min;seconds=selected*60;display()});
-$('#start').onclick=()=>{if(interval){clearInterval(interval);interval=null;$('#start').textContent='Resume Focus';return}$('#start').textContent='Pause';interval=setInterval(()=>{seconds--;display();if(seconds<=0){clearInterval(interval);interval=null;data.focus+=selected;data.streak++;save();$('#start').textContent='Start Focus';dashboard();alert('Focus session complete! 🔥')}},1000)};
-$('#timerReset').onclick=()=>{clearInterval(interval);interval=null;seconds=selected*60;display();$('#start').textContent='Start Focus'};
-$('#generate').onclick=()=>{let date=$('#exam').value;if(!date)return alert('Choose an exam date');let days=Math.max(0,Math.ceil((new Date(date)-new Date())/86400000)),r=+$('#remaining').value,h=+$('#hours').value;$('#planResult').innerHTML=`<div><small>STRATEGY READY</small><h2>${days} days remaining</h2><p>Study ${h} hours daily and aim for <b>${days?Math.ceil(r/days*10)/10:r} chapters/day</b>.</p></div>`};
-$('#reset').onclick=()=>{if(confirm('Reset all StudyVerse data?')){localStorage.removeItem('studyverse2');location.reload()}};
-dashboard();radar();display();
+const STORAGE='foreverArchiveMessagesV1';
+const PASS='ourMemoryArchivePasswordV1';
+let messages=JSON.parse(localStorage.getItem(STORAGE)||'[]');
+let currentView='chat', currentDate='all';
+
+const $=s=>document.querySelector(s);
+const save=()=>localStorage.setItem(STORAGE,JSON.stringify(messages));
+
+function unlock(){
+  const saved=localStorage.getItem(PASS);
+  const input=$('#passwordInput').value.trim();
+  if(!saved){
+    if(!input){$('#lockError').textContent='Choose a password first.';return;}
+    localStorage.setItem(PASS,input);
+  } else if(input!==saved){$('#lockError').textContent='That password is not correct.';return;}
+  $('#lockScreen').classList.add('hidden');$('#app').classList.remove('hidden');render();
+}
+$('#unlockBtn').onclick=unlock;
+$('#passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
+
+$('#importBtn').onclick=()=>$('#fileInput').click();
+$('#fileInput').onchange=e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=()=>importChat(r.result);r.readAsText(f);}};
+function importChat(text){
+  const lines=text.split(/\r?\n/);
+  const patterns=[
+    /^(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?)\s+-\s+([^:]+):\s?(.*)$/i,
+    /^\[(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?)\]\s+([^:]+):\s?(.*)$/i
+  ];
+  let added=0,last=null;
+  for(const line of lines){
+    let m=null; for(const p of patterns){m=line.match(p);if(m)break;}
+    if(m){last={id:Date.now()+Math.random(),date:m[1],time:m[2],sender:m[3].trim(),text:m[4],favorite:false};messages.push(last);added++;}
+    else if(last && line.trim()) last.text+='\n'+line;
+  }
+  save(); alert(added?`${added} messages imported ❤️`:'Could not recognize this export format. Make sure it is a WhatsApp .txt export.');
+  render();
+}
+function filtered(){const q=$('#searchInput').value.toLowerCase();return messages.filter(m=>(currentDate==='all'||m.date===currentDate)&&(`${m.sender} ${m.text} ${m.date}`).toLowerCase().includes(q));}
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function renderChat(){
+  const arr=filtered(), box=$('#messages'), dates=[...new Set(messages.map(m=>m.date))];
+  $('#emptyState').classList.toggle('hidden',messages.length>0);
+  $('#dateFilter').innerHTML=messages.length?`<button class="date-chip" data-date="all">All</button>`+dates.map(d=>`<button class="date-chip" data-date="${esc(d)}">${esc(d)}</button>`).join(''):'';
+  box.innerHTML=arr.map((m,i)=>`${i===0||arr[i-1].date!==m.date?`<div class="date-separator">📅 ${esc(m.date)}</div>`:''}<div class="message ${m.sender.toLowerCase().includes('me')?'me':''}"><button class="fav" data-id="${m.id}">${m.favorite?'⭐':'☆'}</button><div class="meta">${esc(m.sender)} • ${esc(m.time)}</div>${esc(m.text).replace(/\n/g,'<br>')}</div>`).join('');
+  document.querySelectorAll('.fav').forEach(b=>b.onclick=()=>{const m=messages.find(x=>x.id==b.dataset.id);m.favorite=!m.favorite;save();render();});
+  document.querySelectorAll('.date-chip').forEach(b=>b.onclick=()=>{currentDate=b.dataset.date;renderChat();});
+}
+function flashback(){
+  const box=$('#flashbackMessages'); if(!messages.length){box.innerHTML='<p>Import memories first 💌</p>';return;}
+  const dates=[...new Set(messages.map(m=>m.date))], d=dates[Math.floor(Math.random()*dates.length)];
+  const arr=messages.filter(m=>m.date===d).slice(0,12);
+  $('#flashbackTitle').textContent=`A memory from ${d} ❤️`;
+  box.innerHTML=arr.map(m=>`<div class="message"><div class="meta">${esc(m.sender)} • ${esc(m.time)}</div>${esc(m.text)}</div>`).join('');
+}
+function render(){
+  renderChat();
+  $('#favoritesList').innerHTML=messages.filter(m=>m.favorite).map(m=>`<div class="message"><div class="meta">${esc(m.date)} • ${esc(m.sender)}</div>${esc(m.text)}</div>`).join('')||'<div class="empty"><div>⭐</div><h3>No favorites yet</h3><p>Star your most special messages.</p></div>';
+  const senders=new Set(messages.map(m=>m.sender)).size;
+  const days=new Set(messages.map(m=>m.date)).size;
+  const chars=messages.reduce((a,m)=>a+m.text.length,0);
+  $('#statsGrid').innerHTML=[['💬 Total Messages',messages.length],['📅 Memory Days',days],['👥 People',senders],['✍️ Characters',chars.toLocaleString()]].map(x=>`<div class="stat">${x[0]}<strong>${x[1]}</strong></div>`).join('');
+  flashback();
+}
+$('.content').querySelectorAll('.nav');
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{currentView=b.dataset.view;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));$('#'+currentView+'View').classList.remove('hidden');$('#viewTitle').textContent=b.textContent.trim();});
+$('#searchInput').oninput=renderChat;
+$('#newFlashback').onclick=flashback;
+$('#exportBtn').onclick=()=>{const data=new Blob([JSON.stringify(messages,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(data);a.download='our-forever-archive-backup.json';a.click();};
+$('#clearBtn').onclick=()=>{if(confirm('Delete all locally stored imported memories? Your downloaded backup will not be affected.')){messages=[];save();render();}};
