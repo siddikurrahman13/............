@@ -1,8 +1,14 @@
-# Our Forever Archive 2.0 ❤️
-Features: multiple people, multiple WhatsApp numbers/sources, smart duplicate detection, combined timeline, exact date search, previous/next day navigation, keyword search, favourites, flashbacks, statistics, backup and restore.
+# Our Forever Archive 3.0 — Optimized
+Designed for large archives and mobile performance.
 
-## Use
-Export a WhatsApp chat as a .txt file, preferably without media, then import it into the chosen profile and source label.
+## Performance
+- Only 100 messages are rendered at a time.
+- Load More prevents the page from drawing thousands of chat bubbles at once.
+- Search waits briefly while typing before filtering.
+- Flashback and statistics only render when opened.
+
+## Features
+Multiple people, multiple numbers/sources, duplicate detection, date search, previous/next day, keyword search, favourites, flashbacks, statistics, backup and restore, password lock.
 
 ## Privacy
-This static version stores imported data in the browser's local storage. Do not upload chat exports or backup files to a public GitHub repository. Export backups regularly.
+Data stays in browser local storage. Export backups regularly and never upload chat exports or backups to a public GitHub repository.
