@@ -1,40 +1,76 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StudyVerse 2.0</title><link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Forever Archive ❤️</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="app">
-<aside>
-  <h2>◈ StudyVerse <span>2.0</span></h2>
-  <button class="nav active" data-page="dashboard">⌂ Dashboard</button>
-  <button class="nav" data-page="radar">◉ Chapter Radar</button>
-  <button class="nav" data-page="quiz">⚡ GapFinder</button>
-  <button class="nav" data-page="timer">◷ Focus Timer</button>
-  <button class="nav" data-page="planner">☷ Exam Planner</button>
-</aside>
-<main>
-<header><div><small>STUDENT OS</small><h1 id="title">Dashboard</h1></div><button id="reset">Reset Data</button></header>
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-card">
+      <div class="heart">❤️</div>
+      <h1>Our Forever Archive</h1>
+      <p>A little place where our memories never have to disappear.</p>
+      <input id="passwordInput" type="password" placeholder="Enter our secret password" />
+      <button id="unlockBtn">Open Our Memories ✨</button>
+      <small id="lockError"></small>
+    </div>
+  </div>
 
-<section id="dashboard" class="page active">
-<div class="hero"><div><label>🚀 STUDYVERSE 2.0</label><h2>Study smarter.<br><em>Master everything.</em></h2><p>Track your syllabus, discover weak topics and build a clear study mission.</p><button class="primary" data-go="quiz">Find My Weaknesses →</button></div><div class="level">LEVEL<strong id="level">01</strong></div></div>
-<div class="stats">
-<div class="card"><small>CHAPTERS MASTERED</small><b id="mastered">0</b><span>of 0 chapters</span></div>
-<div class="card"><small>AVERAGE STRENGTH</small><b id="average">0%</b><span>across syllabus</span></div>
-<div class="card"><small>STUDY STREAK</small><b id="streak">0 🔥</b><span>completed sessions</span></div>
-<div class="card"><small>FOCUS MINUTES</small><b id="focus">0</b><span>total recorded</span></div>
-</div>
-<div class="grid"><div class="card"><h3>Chapter Radar</h3><div id="weakList"></div></div><div class="card"><h3>Today's Mission</h3><div id="mission"></div></div></div>
-</section>
+  <main id="app" class="hidden">
+    <aside class="sidebar">
+      <div class="brand">❤️ <span>Forever Archive</span></div>
+      <button id="importBtn">＋ Import WhatsApp Chat</button>
+      <input id="fileInput" type="file" accept=".txt" hidden />
+      <button class="nav active" data-view="chat">💬 Conversations</button>
+      <button class="nav" data-view="flashback">🪄 Memory Flashback</button>
+      <button class="nav" data-view="favorites">⭐ Favorites</button>
+      <button class="nav" data-view="stats">📊 Our Stats</button>
+      <div class="sidebar-bottom">
+        <button id="exportBtn">⬇ Backup Archive</button>
+        <button id="clearBtn">🗑 Clear Local Data</button>
+      </div>
+    </aside>
 
-<section id="radar" class="page"><h2>📡 Chapter Radar</h2><p>Adjust each slider according to your confidence.</p><div id="chapters"></div></section>
+    <section class="content">
+      <header>
+        <div>
+          <h2 id="viewTitle">Our Conversations</h2>
+          <p id="subtitle">Import a WhatsApp exported .txt chat to preserve memories.</p>
+        </div>
+        <input id="searchInput" placeholder="🔍 Search our memories..." />
+      </header>
 
-<section id="quiz" class="page"><h2>⚡ GapFinder</h2><p>Answer the diagnostic questions and check your foundation.</p><div class="card quiz" id="quizBox"></div></section>
+      <div id="chatView" class="view">
+        <div id="emptyState" class="empty">
+          <div>💌</div>
+          <h3>No memories imported yet</h3>
+          <p>In WhatsApp: open a chat → ⋮ → More → Export chat → Without media. Then upload the .txt file here.</p>
+        </div>
+        <div id="dateFilter"></div>
+        <div id="messages"></div>
+      </div>
 
-<section id="timer" class="page"><h2>◷ Focus Timer</h2><div class="card timer"><div class="clock" id="clock">25:00</div><div><button class="preset active" data-min="25">25m</button><button class="preset" data-min="50">50m</button><button class="preset" data-min="90">90m</button></div><br><button class="primary" id="start">Start Focus</button><button id="timerReset">Reset</button></div></section>
+      <div id="flashbackView" class="view hidden">
+        <div class="flashback-card">
+          <span>🪄 MEMORY FLASHBACK</span>
+          <h3 id="flashbackTitle">Your memories will appear here</h3>
+          <div id="flashbackMessages"></div>
+          <button id="newFlashback">Show Another Memory ❤️</button>
+        </div>
+      </div>
 
-<section id="planner" class="page"><h2>☷ Exam Planner</h2><div class="grid"><div class="card form"><label>Exam Date<input type="date" id="exam"></label><label>Daily Study Hours<input type="number" id="hours" value="5" min="1"></label><label>Remaining Chapters<input type="number" id="remaining" value="20" min="0"></label><button class="primary" id="generate">Generate Strategy</button></div><div class="card result" id="planResult">Your strategy will appear here.</div></div></section>
-</main></div>
-<script src="app.js"></script>
-</body></html>
+      <div id="favoritesView" class="view hidden">
+        <div id="favoritesList" class="memory-list"></div>
+      </div>
+
+      <div id="statsView" class="view hidden">
+        <div id="statsGrid" class="stats-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
