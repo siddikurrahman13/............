@@ -1,76 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Our Forever Archive ❤️</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="lockScreen" class="lock-screen">
-    <div class="lock-card">
-      <div class="heart">❤️</div>
-      <h1>Our Forever Archive</h1>
-      <p>A little place where our memories never have to disappear.</p>
-      <input id="passwordInput" type="password" placeholder="Enter our secret password" />
-      <button id="unlockBtn">Open Our Memories ✨</button>
-      <small id="lockError"></small>
-    </div>
-  </div>
-
-  <main id="app" class="hidden">
-    <aside class="sidebar">
-      <div class="brand">❤️ <span>Forever Archive</span></div>
-      <button id="importBtn">＋ Import WhatsApp Chat</button>
-      <input id="fileInput" type="file" accept=".txt" hidden />
-      <button class="nav active" data-view="chat">💬 Conversations</button>
-      <button class="nav" data-view="flashback">🪄 Memory Flashback</button>
-      <button class="nav" data-view="favorites">⭐ Favorites</button>
-      <button class="nav" data-view="stats">📊 Our Stats</button>
-      <div class="sidebar-bottom">
-        <button id="exportBtn">⬇ Backup Archive</button>
-        <button id="clearBtn">🗑 Clear Local Data</button>
-      </div>
-    </aside>
-
-    <section class="content">
-      <header>
-        <div>
-          <h2 id="viewTitle">Our Conversations</h2>
-          <p id="subtitle">Import a WhatsApp exported .txt chat to preserve memories.</p>
-        </div>
-        <input id="searchInput" placeholder="🔍 Search our memories..." />
-      </header>
-
-      <div id="chatView" class="view">
-        <div id="emptyState" class="empty">
-          <div>💌</div>
-          <h3>No memories imported yet</h3>
-          <p>In WhatsApp: open a chat → ⋮ → More → Export chat → Without media. Then upload the .txt file here.</p>
-        </div>
-        <div id="dateFilter"></div>
-        <div id="messages"></div>
-      </div>
-
-      <div id="flashbackView" class="view hidden">
-        <div class="flashback-card">
-          <span>🪄 MEMORY FLASHBACK</span>
-          <h3 id="flashbackTitle">Your memories will appear here</h3>
-          <div id="flashbackMessages"></div>
-          <button id="newFlashback">Show Another Memory ❤️</button>
-        </div>
-      </div>
-
-      <div id="favoritesView" class="view hidden">
-        <div id="favoritesList" class="memory-list"></div>
-      </div>
-
-      <div id="statsView" class="view hidden">
-        <div id="statsGrid" class="stats-grid"></div>
-      </div>
-    </section>
-  </main>
-
-  <script src="app.js"></script>
-</body>
-</html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Our Forever Archive 2.0</title><link rel="stylesheet" href="style.css"></head><body>
+<div id="lock"><div class="lock"><h1>❤️ Our Forever Archive</h1><p>Some conversations are too precious to disappear.</p><input id="pass" type="password" placeholder="Create / enter password"><button onclick="unlock()">Open Our Memories ✨</button><small id="err"></small></div></div>
+<div id="app" class="hidden"><aside><h2>❤️ Forever Archive</h2><button onclick="view('home')">🏠 Dashboard</button><button onclick="view('chat')">💬 Timeline</button><button onclick="view('fav')">⭐ Favorites</button><button onclick="view('flash')">🪄 Flashback</button><button onclick="view('stats')">📊 Statistics</button><hr><button onclick="addProfile()">👤 Add Person</button><button onclick="chooseImport()">📥 Import WhatsApp Chat</button><input id="file" type="file" accept=".txt" hidden><hr><button onclick="backup()">⬇ Export Backup</button><button onclick="restorePick()">↩ Restore Backup</button><input id="restore" type="file" accept=".json" hidden><button onclick="clearAll()">🗑 Clear Archive</button></aside>
+<main><section id="home" class="page"><h1>Our Memory Dashboard ❤️</h1><div id="cards" class="cards"></div><div class="panel"><h3>👤 Memory Profiles</h3><div id="profiles"></div></div><div class="panel"><h3>🪄 On This Day</h3><div id="today"></div></div></section>
+<section id="chat" class="page hidden"><h1>Combined Memory Timeline 💬</h1><div class="filters"><select id="person" onchange="renderChat()"><option value="all">All People</option></select><select id="source" onchange="renderChat()"><option value="all">All Numbers / Sources</option></select><input id="date" type="date" onchange="renderChat()"><input id="search" placeholder="🔍 Search message" oninput="renderChat()"><button onclick="clearFilters()">Clear</button></div><div class="day"><button onclick="move(-1)">← Previous Day</button><b id="dayLabel">All Memories</b><button onclick="move(1)">Next Day →</button></div><div id="messages"></div></section>
+<section id="fav" class="page hidden"><h1>⭐ Favourite Memories</h1><div id="favList"></div></section>
+<section id="flash" class="page hidden"><div class="flash"><h1>🪄 Memory Flashback</h1><h3 id="flashTitle"></h3><div id="flashList"></div><button onclick="flash()">🎲 Another Memory ❤️</button></div></section>
+<section id="stats" class="page hidden"><h1>📊 Statistics</h1><div id="statsCards" class="cards"></div><div class="panel"><h3>📱 Sources</h3><div id="sources"></div></div></section></main></div>
+<script src="app.js"></script></body></html>
